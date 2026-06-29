@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Pickleball Tracker</title>
+<title>테크노 피클볼 점수 관리</title>
 <style>
   :root{
     --bg:#0b0d10;
@@ -32,6 +32,15 @@
     max-width:480px;margin:0 auto;min-height:100vh;
     display:flex;flex-direction:column;
     position:relative;
+  }
+
+  /* ===== Logo banner (setup screen only) ===== */
+  .logo-banner{
+    display:flex;justify-content:center;align-items:center;
+    padding:20px 20px 4px;background:var(--bg);
+  }
+  .logo-img{
+    max-width:260px;width:100%;height:auto;object-fit:contain;
   }
 
   /* ===== Header ===== */
@@ -819,22 +828,15 @@
   function renderSetup(){
     const p = state.players;
     app.innerHTML = `
+      <div class="logo-banner">
+        <img src="https://github.com/givemeryu-lab/TechnoPicklers/blob/main/2026-05-13_001.png?raw=true" alt="Techno Picklers" class="logo-img">
+      </div>
       <div class="header">
-        <div class="titles">
-          <h1>피클볼</h1>
-          <div class="subtitle">새 경기 설정</div>
-        </div>
         <div class="header-actions">
           <button class="icon-btn" id="manage-roster-btn" title="선수 관리">${usersIcon()}</button>
         </div>
       </div>
       <div class="setup">
-        <div class="setup-hero">
-          <div class="eyebrow">복식 경기</div>
-          <h2>선수 정보를 입력하세요</h2>
-          <p>팀별로 두 명씩, 총 4명의 이름을 입력해주세요. 저장된 선수는 목록에서 바로 선택할 수 있어요.</p>
-        </div>
-
         <div class="team-block team-a">
           <div class="team-label"><span class="dot"></span>A팀</div>
           <div class="player-input">
