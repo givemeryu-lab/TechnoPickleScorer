@@ -101,6 +101,21 @@
   }
   .player-input .picker-btn:active{background:var(--blue-dim);color:#fff;border-color:var(--blue);}
 
+  .server-select-block{
+    background:var(--panel);border:1px solid var(--line);border-radius:16px;
+    padding:16px 16px 14px;
+  }
+  .server-select-label{color:var(--text-dim);}
+  .server-select-label .dot{background:var(--text-dim);}
+  .server-choice-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .server-choice{
+    background:var(--panel-raised);border:1.5px solid var(--line);border-radius:11px;
+    padding:12px 10px;color:var(--text-dim);font-size:14.5px;font-weight:600;cursor:pointer;
+    text-align:center;
+  }
+  .server-choice .sc-name{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .server-choice.active{background:var(--blue-dim);border-color:var(--blue);color:#fff;}
+
   .game-settings{
     background:var(--panel);border:1px solid var(--line);border-radius:16px;
     padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;
@@ -472,15 +487,17 @@
       current: null, // active game object
       seriesTarget: 3, // best of N games... but per request, just track multiple games, no auto-stop. We'll let series go until user ends.
       roster: [], // saved player names for quick selection
+      startingServerChoice: { team: 'a', num: 1 }, // which player serves first in the very first game
     };
   }
 
-  function newGame(servingTeam){
+  function newGame(servingTeam, startingPlayerNum){
     // servingTeam: 'a' or 'b' - who serves first in this game
+    // startingPlayerNum: 1 or 2 - which player of that team is the one actually serving (user-selectable for game 1)
     return {
       a: 0, b: 0,
       server: servingTeam, // 'a' | 'b'
-      serverNum: 2, // pickleball rule: the very first server of a new game is always called "2" (since only one serve happens before the first side-out). After the first side-out, the new serving team always starts at 1.
+      serverNum: startingPlayerNum || 1, // which player (1 or 2) of the serving team is actually serving right now
       firstServeOfGame: true, // tracks the "only one server before first side-out" rule
       // positions: which physical player (1/2 for team a, 1/2 for team b) sits in "right/even" court
       posA: { right:1, left:2 }, // player number in right vs left court for team A
@@ -488,7 +505,7 @@
       teamSideSwapped: false, // false: Team A on left half of court diagram, B on right. true: swapped.
       startingServer: servingTeam,
       pointLog: [], // chronological log of scored points: {team:'a'|'b', num:1|2, scoreA, scoreB}
-      ended: false, // true once the game is over (naturally or forced via "寃뚯엫 醫낅즺")
+      ended: false, // true once the game is over (naturally or forced via "게임 종료")
     };
   }
 
@@ -505,6 +522,7 @@
 
   state = load() || freshState();
   if(!Array.isArray(state.roster)) state.roster = [];
+  if(!state.startingServerChoice) state.startingServerChoice = { team: 'a', num: 1 };
   if(!state.current && state.screen === "game"){
     state.current = newGame("a");
   }
@@ -512,8 +530,8 @@
   // ---------- Helpers ----------
   function teamName(team, num){
     const p = state.players;
-    if(team==="a") return num===1 ? (p.a1||"Player 1") : (p.a2||"Player 2");
-    return num===1 ? (p.b1||"Player 3") : (p.b2||"Player 4");
+    if(team==="a") return num===1 ? (p.a1||"선수 1") : (p.a2||"선수 2");
+    return num===1 ? (p.b1||"선수 3") : (p.b2||"선수 4");
   }
 
   // ---------- Roster (saved players) ----------
@@ -534,12 +552,12 @@
 
   function renderRosterList(){
     if(!state.roster.length){
-      return `<div class="roster-empty">?깅줉???좎닔媛 ?놁뼱?? ?꾨옒?먯꽌 異붽??대낫?몄슂.</div>`;
+      return `<div class="roster-empty">등록된 선수가 없어요. 아래에서 추가해보세요.</div>`;
     }
     return state.roster.map(name => `
       <div class="roster-item">
         <button class="roster-name-btn" data-name="${esc(name)}">${esc(name)}</button>
-        <button class="roster-del-btn" data-name="${esc(name)}" title="??젣">??/button>
+        <button class="roster-del-btn" data-name="${esc(name)}" title="삭제">✕</button>
       </div>
     `).join("");
   }
@@ -580,7 +598,7 @@
         list.innerHTML = renderRosterList();
         bindRosterListEvents(overlay, mode, slotKey);
       } else if((val||"").trim()){
-        flashMessage("?대? ?깅줉???대쫫?댁뿉??);
+        flashMessage("이미 등록된 이름이에요");
       }
       input.focus();
     };
@@ -594,15 +612,15 @@
     overlay.className = "modal-overlay";
     overlay.innerHTML = `
       <div class="modal-card roster-modal">
-        <h3>?좎닔 愿由?/h3>
-        <div class="sub">?먯＜ ?④퍡 移섎뒗 ?좎닔瑜??깅줉?대몢硫??ㅼ쓬 寃쎄린 ?ㅼ젙 ??諛붾줈 ?좏깮?????덉뼱??</div>
+        <h3>선수 관리</h3>
+        <div class="sub">자주 함께 치는 선수를 등록해두면 다음 경기 설정 때 바로 선택할 수 있어요.</div>
         <div class="roster-add-row">
-          <input id="new-roster-name" type="text" placeholder="?좎닔 ?대쫫 ?낅젰" maxlength="14">
-          <button id="add-roster-btn">異붽?</button>
+          <input id="new-roster-name" type="text" placeholder="선수 이름 입력" maxlength="14">
+          <button id="add-roster-btn">추가</button>
         </div>
         <div class="roster-list" id="roster-list">${renderRosterList()}</div>
         <div class="modal-actions">
-          <button class="secondary" id="close-roster-modal">?リ린</button>
+          <button class="secondary" id="close-roster-modal">닫기</button>
         </div>
       </div>
     `;
@@ -619,13 +637,13 @@
     overlay.className = "confirm-overlay";
     overlay.innerHTML = `
       <div class="confirm-sheet picker-sheet">
-        <h3 class="picker-title">?좎닔 ?좏깮</h3>
+        <h3 class="picker-title">선수 선택</h3>
         <div class="roster-add-row">
-          <input id="new-roster-name" type="text" placeholder="???좎닔 異붽?" maxlength="14">
-          <button id="add-roster-btn">異붽?</button>
+          <input id="new-roster-name" type="text" placeholder="새 선수 추가" maxlength="14">
+          <button id="add-roster-btn">추가</button>
         </div>
         <div class="roster-list" id="roster-list">${renderRosterList()}</div>
-        <button class="cancel picker-cancel" id="close-roster-modal">痍⑥냼</button>
+        <button class="cancel picker-cancel" id="close-roster-modal">취소</button>
       </div>
     `;
     document.body.appendChild(overlay);
@@ -780,7 +798,8 @@
   }
 
   function startMatch(){
-    state.current = newGame("a");
+    const choice = state.startingServerChoice || { team: 'a', num: 1 };
+    state.current = newGame(choice.team, choice.num);
     state.screen = "game";
     save();
     render();
@@ -802,55 +821,67 @@
     app.innerHTML = `
       <div class="header">
         <div class="titles">
-          <h1>Pickleball</h1>
-          <div class="subtitle">??寃쎄린 ?ㅼ젙</div>
+          <h1>피클볼</h1>
+          <div class="subtitle">새 경기 설정</div>
         </div>
         <div class="header-actions">
-          <button class="icon-btn" id="manage-roster-btn" title="?좎닔 愿由?>${usersIcon()}</button>
+          <button class="icon-btn" id="manage-roster-btn" title="선수 관리">${usersIcon()}</button>
         </div>
       </div>
       <div class="setup">
         <div class="setup-hero">
-          <div class="eyebrow">Doubles Match</div>
-          <h2>?좎닔 ?뺣낫瑜??낅젰?섏꽭??/h2>
-          <p>?蹂꾨줈 ??紐낆뵫, 珥?4紐낆쓽 ?대쫫???낅젰?댁＜?몄슂. ??λ맂 ?좎닔??紐⑸줉?먯꽌 諛붾줈 ?좏깮?????덉뼱??</p>
+          <div class="eyebrow">복식 경기</div>
+          <h2>선수 정보를 입력하세요</h2>
+          <p>팀별로 두 명씩, 총 4명의 이름을 입력해주세요. 저장된 선수는 목록에서 바로 선택할 수 있어요.</p>
         </div>
 
         <div class="team-block team-a">
-          <div class="team-label"><span class="dot"></span>Team A</div>
+          <div class="team-label"><span class="dot"></span>A팀</div>
           <div class="player-input">
             <div class="pos-tag">1</div>
-            <input id="inp-a1" type="text" placeholder="Player 1 ?대쫫" value="${esc(p.a1)}" maxlength="14">
-            <button class="picker-btn" data-slot="a1" title="紐⑸줉?먯꽌 ?좏깮">${pickListIcon()}</button>
+            <input id="inp-a1" type="text" placeholder="선수 1 이름" value="${esc(p.a1)}" maxlength="14">
+            <button class="picker-btn" data-slot="a1" title="목록에서 선택">${pickListIcon()}</button>
           </div>
           <div class="player-input">
             <div class="pos-tag">2</div>
-            <input id="inp-a2" type="text" placeholder="Player 2 ?대쫫" value="${esc(p.a2)}" maxlength="14">
-            <button class="picker-btn" data-slot="a2" title="紐⑸줉?먯꽌 ?좏깮">${pickListIcon()}</button>
+            <input id="inp-a2" type="text" placeholder="선수 2 이름" value="${esc(p.a2)}" maxlength="14">
+            <button class="picker-btn" data-slot="a2" title="목록에서 선택">${pickListIcon()}</button>
           </div>
         </div>
 
         <div class="team-block team-b">
-          <div class="team-label"><span class="dot"></span>Team B</div>
+          <div class="team-label"><span class="dot"></span>B팀</div>
           <div class="player-input">
             <div class="pos-tag">3</div>
-            <input id="inp-b1" type="text" placeholder="Player 3 ?대쫫" value="${esc(p.b1)}" maxlength="14">
-            <button class="picker-btn" data-slot="b1" title="紐⑸줉?먯꽌 ?좏깮">${pickListIcon()}</button>
+            <input id="inp-b1" type="text" placeholder="선수 3 이름" value="${esc(p.b1)}" maxlength="14">
+            <button class="picker-btn" data-slot="b1" title="목록에서 선택">${pickListIcon()}</button>
           </div>
           <div class="player-input">
             <div class="pos-tag">4</div>
-            <input id="inp-b2" type="text" placeholder="Player 4 ?대쫫" value="${esc(p.b2)}" maxlength="14">
-            <button class="picker-btn" data-slot="b2" title="紐⑸줉?먯꽌 ?좏깮">${pickListIcon()}</button>
+            <input id="inp-b2" type="text" placeholder="선수 4 이름" value="${esc(p.b2)}" maxlength="14">
+            <button class="picker-btn" data-slot="b2" title="목록에서 선택">${pickListIcon()}</button>
+          </div>
+        </div>
+
+        <div class="server-select-block">
+          <div class="team-label server-select-label"><span class="dot"></span>서브 시작 선수</div>
+          <div class="server-choice-grid">
+            ${[['a',1],['a',2],['b',1],['b',2]].map(([team,num])=>{
+              const sel = state.startingServerChoice;
+              const isActive = sel.team===team && sel.num===num;
+              const name = teamName(team, num);
+              return `<button class="server-choice ${isActive?'active':''}" data-team="${team}" data-num="${num}"><span class="sc-name">${esc(name)}</span></button>`;
+            }).join("")}
           </div>
         </div>
 
         <div class="game-settings">
           <div class="label-group">
-            <div class="t">紐⑺몴 ?먯닔</div>
-            <div class="d">??寃뚯엫 ?밸━ ?먯닔</div>
+            <div class="t">목표 점수</div>
+            <div class="d">한 게임 승리 점수</div>
           </div>
           <div class="stepper">
-            <button id="pts-minus">??/button>
+            <button id="pts-minus">−</button>
             <div class="val" id="pts-val">${state.pointsToWin}</div>
             <button id="pts-plus">+</button>
           </div>
@@ -858,12 +889,12 @@
 
         <div class="game-settings">
           <div class="label-group">
-            <div class="t">?밸━ 議곌굔</div>
-            <div class="d">?숈젏 ??泥섎━ 諛⑹떇</div>
+            <div class="t">승리 조건</div>
+            <div class="d">동점 시 처리 방식</div>
           </div>
           <div class="win-by-toggle">
-            <button data-winby="1" class="${state.winBy===1?'active':''}">紐⑺몴 ?꾨떖 利됱떆 ??/button>
-            <button data-winby="2" class="${state.winBy===2?'active':''}">2??李⑤줈 ?밸━</button>
+            <button data-winby="1" class="${state.winBy===1?'active':''}">목표 도달 즉시 승</button>
+            <button data-winby="2" class="${state.winBy===2?'active':''}">2점 차로 승리</button>
           </div>
         </div>
 
@@ -871,18 +902,42 @@
       </div>
 
       <div class="start-btn">
-        <button id="start-game-btn">寃쎄린 ?쒖옉</button>
+        <button id="start-game-btn">경기 시작</button>
       </div>
     `;
 
-    document.getElementById("inp-a1").oninput = e=>{ state.players.a1=e.target.value; save(); };
-    document.getElementById("inp-a2").oninput = e=>{ state.players.a2=e.target.value; save(); };
-    document.getElementById("inp-b1").oninput = e=>{ state.players.b1=e.target.value; save(); };
-    document.getElementById("inp-b2").oninput = e=>{ state.players.b2=e.target.value; save(); };
+    document.getElementById("inp-a1").oninput = e=>{
+      state.players.a1=e.target.value; save();
+      const chip = document.querySelector('.server-choice[data-team="a"][data-num="1"] .sc-name');
+      if(chip) chip.textContent = e.target.value || teamName('a',1);
+    };
+    document.getElementById("inp-a2").oninput = e=>{
+      state.players.a2=e.target.value; save();
+      const chip = document.querySelector('.server-choice[data-team="a"][data-num="2"] .sc-name');
+      if(chip) chip.textContent = e.target.value || teamName('a',2);
+    };
+    document.getElementById("inp-b1").oninput = e=>{
+      state.players.b1=e.target.value; save();
+      const chip = document.querySelector('.server-choice[data-team="b"][data-num="1"] .sc-name');
+      if(chip) chip.textContent = e.target.value || teamName('b',1);
+    };
+    document.getElementById("inp-b2").oninput = e=>{
+      state.players.b2=e.target.value; save();
+      const chip = document.querySelector('.server-choice[data-team="b"][data-num="2"] .sc-name');
+      if(chip) chip.textContent = e.target.value || teamName('b',2);
+    };
 
     document.getElementById("manage-roster-btn").onclick = ()=> showRosterManageModal();
     document.querySelectorAll(".picker-btn").forEach(btn=>{
       btn.onclick = ()=> showPlayerPicker(btn.dataset.slot);
+    });
+
+    document.querySelectorAll(".server-choice").forEach(btn=>{
+      btn.onclick = ()=>{
+        state.startingServerChoice = { team: btn.dataset.team, num: parseInt(btn.dataset.num,10) };
+        save();
+        render();
+      };
     });
 
     document.getElementById("pts-minus").onclick = ()=>{
@@ -940,11 +995,11 @@
       <div class="header">
         <button class="icon-btn" id="back-btn">${chevronLeft()}</button>
         <div class="titles">
-          <h1>Pickleball</h1>
-          <div class="subtitle">${state.pointsToWin}???좎듅${state.winBy===2?' 쨌 2?먯감':''}</div>
+          <h1>피클볼</h1>
+          <div class="subtitle">${state.pointsToWin}점 선승${state.winBy===2?' · 2점차':''}</div>
         </div>
         <div class="header-actions">
-          <button class="icon-btn" id="reset-btn" title="珥덇린??>${resetIcon()}</button>
+          <button class="icon-btn" id="reset-btn" title="초기화">${resetIcon()}</button>
         </div>
       </div>
 
@@ -965,7 +1020,7 @@
             <div class="game-scores">${scoreCell(allGameScores,'b')}</div>
           </div>
         </div>
-        <div class="serve-indicator-row">R = ?꾩옱 ?쒕쾭 쨌 ${g.startingServer==='a'?esc(teamName('a',1))+' 쨌 '+esc(teamName('a',2)):esc(teamName('b',1))+' 쨌 '+esc(teamName('b',2))} ?????寃뚯엫 ?쒖옉 ?쒕툕</div>
+        <div class="serve-indicator-row">R = 현재 서버 · ${g.startingServer==='a'?esc(teamName('a',1))+' · '+esc(teamName('a',2)):esc(teamName('b',1))+' · '+esc(teamName('b',2))} 팀이 이 게임 시작 서브</div>
 
         ${renderCourt(g, srv)}
 
@@ -974,14 +1029,14 @@
         </div>
 
         <div class="controls-bar">
-          <button class="ctrl-btn" id="undo-btn">${undoIcon()} ????痍⑥냼</button>
-          <button class="ctrl-btn" id="endgame-btn">${flagIcon()} 寃뚯엫 醫낅즺</button>
+          <button class="ctrl-btn" id="undo-btn">${undoIcon()} 한 점 취소</button>
+          <button class="ctrl-btn" id="endgame-btn">${flagIcon()} 게임 종료</button>
         </div>
       </div>
     `;
 
     document.getElementById("back-btn").onclick = ()=>{
-      if(confirm("?ㅼ젙 ?붾㈃?쇰줈 ?뚯븘媛硫??꾩옱 吏꾪뻾 以묒씤 寃뚯엫 ?곗씠?곕뒗 ?좎??섏?留??붾㈃???꾪솚?⑸땲??")){
+      if(confirm("설정 화면으로 돌아가면 현재 진행 중인 게임 데이터는 유지되지만 화면이 전환됩니다.")){
         state.screen = "setup";
         save(); render();
       }
@@ -997,7 +1052,7 @@
     document.getElementById("swap-team-sides").onclick = ()=> swapTeamSides();
     document.getElementById("endgame-btn").onclick = ()=>{
       if(g.a===0 && g.b===0){ return; }
-      if(confirm(`?꾩옱 ${g.a}-${g.b} ?곹깭?먯꽌 寃뚯엫??醫낅즺?좉퉴?? (紐⑺몴 ?먯닔 誘몃떖 ??湲곕줉留???λ맗?덈떎)`)){
+      if(confirm(`현재 ${g.a}-${g.b} 상태에서 게임을 종료할까요? (목표 점수 미달 시 기록만 저장됩니다)`)){
         g.ended = true;
         save();
         render();
@@ -1014,7 +1069,7 @@
   // given side-out state machine without history. We'll keep a lightweight history stack.
   function undoLastPoint(){
     if(!state.history || state.history.length===0){
-      flashMessage("痍⑥냼??湲곕줉???놁뼱??);
+      flashMessage("취소할 기록이 없어요");
       return;
     }
     const prev = state.history.pop();
@@ -1040,12 +1095,12 @@
     const rightTeam = g.teamSideSwapped ? 'a' : 'b';
 
     function zoneHTML(team){
-      const label = team === 'a' ? 'Team A ?앹젏' : 'Team B ?앹젏';
+      const label = team === 'a' ? 'A팀 득점' : 'B팀 득점';
       return `
         <button class="tap-zone zone-${team}" id="zone-${team}" ${ended?'disabled':''}>
           <div class="zlabel">${label}</div>
           <div class="zscore">${g[team]}</div>
-          <div class="zhint">??븯???먯닔 異붽?</div>
+          <div class="zhint">탭하여 점수 추가</div>
         </button>
       `;
     }
@@ -1077,14 +1132,17 @@
     }
 
     // Score call: server's score - receiver's score - server number
+    // Pickleball rule: during the very first service turn of a new game, the call is always "...-2"
+    // regardless of which physical player (1 or 2) is actually serving.
     const serverScore = g[g.server];
     const receiverTeam = g.server === 'a' ? 'b' : 'a';
     const receiverScore = g[receiverTeam];
+    const callNum = g.firstServeOfGame ? 2 : g.serverNum;
 
     return `
       <div class="court-wrap">
         <div class="court">
-          <div class="score-call-value">${serverScore}<span class="sc-sep">-</span>${receiverScore}<span class="sc-sep">-</span>${g.serverNum}</div>
+          <div class="score-call-value">${serverScore}<span class="sc-sep">-</span>${receiverScore}<span class="sc-sep">-</span>${callNum}</div>
           <div class="court-side side-left">
             ${quadHTML(leftTeam, leftTop, false)}
             ${quadHTML(leftTeam, leftBottom, true)}
@@ -1094,9 +1152,9 @@
             ${quadHTML(rightTeam, rightBottom, true)}
           </div>
           <div class="swap-controls">
-            <button class="swap-btn" id="swap-left-players" title="${esc(teamName(leftTeam,1))}/${esc(teamName(leftTeam,2))} ?꾩튂 援먯껜">${swapVerticalIcon()}</button>
-            <button class="swap-btn swap-btn-main" id="swap-team-sides" title="? ?꾩튂 援먯껜">${swapHorizontalIcon()}</button>
-            <button class="swap-btn" id="swap-right-players" title="${esc(teamName(rightTeam,1))}/${esc(teamName(rightTeam,2))} ?꾩튂 援먯껜">${swapVerticalIcon()}</button>
+            <button class="swap-btn" id="swap-left-players" title="${esc(teamName(leftTeam,1))}/${esc(teamName(leftTeam,2))} 위치 교체">${swapVerticalIcon()}</button>
+            <button class="swap-btn swap-btn-main" id="swap-team-sides" title="팀 위치 교체">${swapHorizontalIcon()}</button>
+            <button class="swap-btn" id="swap-right-players" title="${esc(teamName(rightTeam,1))}/${esc(teamName(rightTeam,2))} 위치 교체">${swapVerticalIcon()}</button>
           </div>
         </div>
       </div>
@@ -1158,7 +1216,7 @@
     const s = computeReportStats(scopeGames);
 
     const scopeTabsHTML = ["all", ...games.map((_,i)=>String(i))].map(sc=>{
-      const label = sc==="all" ? "ALL" : `GAME ${parseInt(sc,10)+1}`;
+      const label = sc==="all" ? "전체" : `${parseInt(sc,10)+1}게임`;
       return `<button class="stat-scope-btn ${scope===sc?'active':''}" data-scope="${sc}">${label}</button>`;
     }).join("");
 
@@ -1184,15 +1242,15 @@
           <span class="team-a-text">${esc(teamName('a',1))} / ${esc(teamName('a',2))}</span>
           <span class="team-b-text">${esc(teamName('b',1))} / ${esc(teamName('b',2))}</span>
         </div>
-        ${bar('Games won', s.gamesWonA, s.gamesWonB)}
-        ${bar('Points won', s.pointsA, s.pointsB)}
-        ${bar('Max points in a row', s.maxA, s.maxB)}
+        ${bar('게임 승수', s.gamesWonA, s.gamesWonB)}
+        ${bar('획득 포인트', s.pointsA, s.pointsB)}
+        ${bar('최대 연속 득점', s.maxA, s.maxB)}
       </div>
     `;
   }
 
   function renderReportBreakdown(games, activeGameIdx){
-    const tabsHTML = games.map((_,i)=>`<button class="bd-game-btn ${i===activeGameIdx?'active':''}" data-gameidx="${i}">Game ${i+1}</button>`).join("");
+    const tabsHTML = games.map((_,i)=>`<button class="bd-game-btn ${i===activeGameIdx?'active':''}" data-gameidx="${i}">${i+1}게임</button>`).join("");
     const game = games[activeGameIdx];
     const log = game.pointLog || [];
 
@@ -1214,7 +1272,7 @@
           `;
         }).join("")}
       </div>
-    ` : `<div class="roster-empty">??寃뚯엫???ъ씤??湲곕줉???놁뼱??</div>`;
+    ` : `<div class="roster-empty">이 게임의 포인트 기록이 없어요.</div>`;
 
     return `
       <div class="report-breakdown">
@@ -1239,19 +1297,19 @@
     function renderCard(){
       const lastGame = games[games.length-1];
       const w = gameWinnerLabel(lastGame);
-      const bannerText = w ? `${esc(teamName(w,1))} 쨌 ${esc(teamName(w,2))} ?밸━!` : "寃뚯엫 醫낅즺";
+      const bannerText = w ? `${esc(teamName(w,1))} · ${esc(teamName(w,2))} 승리!` : "게임 종료";
 
       overlay.innerHTML = `
         <div class="modal-card report-card">
           <div class="report-banner">
-            <div class="report-trophy">${w?'?룇':'?뢾'}</div>
+            <div class="report-trophy">${w?'🏆':'🏁'}</div>
             <div class="report-banner-text">${bannerText}</div>
-            <div class="report-banner-sub">Game ${games.length} 쨌 ${lastGame.a}-${lastGame.b}</div>
+            <div class="report-banner-sub">${games.length}게임 · ${lastGame.a}-${lastGame.b}</div>
           </div>
           <div class="report-tabs">
-            <button class="report-tab ${activeMainTab==='details'?'active':''}" data-tab="details">DETAILS</button>
-            <button class="report-tab ${activeMainTab==='stats'?'active':''}" data-tab="stats">STATISTICS</button>
-            <button class="report-tab ${activeMainTab==='breakdown'?'active':''}" data-tab="breakdown">BREAKDOWN</button>
+            <button class="report-tab ${activeMainTab==='details'?'active':''}" data-tab="details">상세 기록</button>
+            <button class="report-tab ${activeMainTab==='stats'?'active':''}" data-tab="stats">통계</button>
+            <button class="report-tab ${activeMainTab==='breakdown'?'active':''}" data-tab="breakdown">포인트 흐름</button>
           </div>
           <div class="report-body">
             ${activeMainTab==='details' ? renderReportDetails(games) : ''}
@@ -1259,8 +1317,8 @@
             ${activeMainTab==='breakdown' ? renderReportBreakdown(games, activeBreakdownGame) : ''}
           </div>
           <div class="modal-actions report-actions">
-            <button class="primary" id="report-next-game-btn">?ㅼ쓬 寃뚯엫 ?쒖옉</button>
-            <button class="secondary" id="report-close-series-btn">?쒕━利?醫낅즺 / ??寃쎄린</button>
+            <button class="primary" id="report-next-game-btn">다음 게임 시작</button>
+            <button class="secondary" id="report-close-series-btn">시리즈 종료 / 새 경기</button>
           </div>
         </div>
       `;
@@ -1294,10 +1352,10 @@
     overlay.className = "confirm-overlay";
     overlay.innerHTML = `
       <div class="confirm-sheet">
-        <p>紐⑤뱺 ?먯닔? ?좎닔 ?뺣낫瑜?珥덇린?뷀븷源뚯슂?<br>???숈옉? ?섎룎由????놁뼱??</p>
+        <p>모든 점수와 선수 정보를 초기화할까요?<br>이 동작은 되돌릴 수 없어요.</p>
         <div class="row">
-          <button class="cancel" id="cancel-reset">痍⑥냼</button>
-          <button class="danger" id="confirm-reset">珥덇린??/button>
+          <button class="cancel" id="cancel-reset">취소</button>
+          <button class="danger" id="confirm-reset">초기화</button>
         </div>
       </div>
     `;
