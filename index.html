@@ -318,7 +318,7 @@ let _voiceEnabled=true,_voices=[];
 function loadVoices(){_voices=window.speechSynthesis?speechSynthesis.getVoices():[];}
 if(window.speechSynthesis){loadVoices();speechSynthesis.addEventListener("voiceschanged",loadVoices);}
 function pickVoice(){const p=["Samantha","Google US English","Alex","Karen"];for(const n of p){const f=_voices.find(v=>v.name===n);if(f)return f;}return _voices.find(v=>v.lang.startsWith("en-US"))||_voices.find(v=>v.lang.startsWith("en"))||_voices[0]||null;}
-function speakScore(ss,rs,sn){if(!_voiceEnabled||!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance((NW[ss]||ss)+"... "+(NW[rs]||rs)+"... "+(NW[sn]||sn));u.lang="en-US";u.rate=0.88;u.pitch=1.05;u.volume=1.0;const v=pickVoice();if(v)u.voice=v;if(speechSynthesis.paused)speechSynthesis.resume();speechSynthesis.speak(u);}
+function speakScore(ss,rs,sn){if(!_voiceEnabled||!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance((NW[ss]||ss)+"... "+(NW[rs]||rs)+"... "+(NW[sn]||sn));u.lang="en-US";u.rate=1.88;u.pitch=1.05;u.volume=1.0;const v=pickVoice();if(v)u.voice=v;if(speechSynthesis.paused)speechSynthesis.resume();speechSynthesis.speak(u);}
 function showScoreToast(ss,rs,sn){const old=document.getElementById("score-toast");if(old)old.remove();const t=document.createElement("div");t.id="score-toast";t.className="score-toast";t.textContent=(NW[ss]||ss)+" · "+(NW[rs]||rs)+" · "+(NW[sn]||sn);document.body.appendChild(t);setTimeout(()=>{const el=document.getElementById("score-toast");if(el)el.remove();},1800);}
 function announceScore(g){if(!g)return;const ss=g.server==="a"?g.a:g.b,rs=g.server==="a"?g.b:g.a;showScoreToast(ss,rs,g.serverNum);speakScore(ss,rs,g.serverNum);}
 
