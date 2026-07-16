@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>피클볼 트래커</title>
+<title>테크노 피클볼 트래커</title>
 <style>
 :root{--bg:#0b0d10;--panel:#15181c;--panel-raised:#1c2025;--line:#262b31;--court:#0d2b33;--court-line:#5fd0e8;--blue:#3b9eff;--blue-dim:#1f4a73;--text:#eef1f4;--text-dim:#8b9299;--text-faint:#5a6068;--gold:#e8b339;--win:#37c977;}
 *{box-sizing:border-box;}
@@ -690,7 +690,7 @@ function buildMatchShareText(gs,tnf,winnerTeam){
   const teamB=`${tnf("b",1)} / ${tnf("b",2)}`;
   const gA=gs.filter(g=>g.winner==="a").length,gB=gs.filter(g=>g.winner==="b").length;
   const winnerNames=winnerTeam==="a"?teamA:teamB;
-  const lines=[`🏓 피클볼 경기 결과`,`${teamA}  vs  ${teamB}`,``,`🏆 ${winnerNames} 승 (${gA} : ${gB})`,``];
+  const lines=[`🏓 경기 결과`,`${teamA}  vs  ${teamB}`,``,`🏆 ${winnerNames} 승 (${gA} : ${gB})`,``];
   gs.forEach((g,i)=>{lines.push(`세트 ${i+1}: ${g.a} - ${g.b}  (${g.winner==="a"?teamA:teamB} 승)`);});
   const tA=gs.reduce((s,g)=>s+g.a,0),tB=gs.reduce((s,g)=>s+g.b,0),tot=tA+tB||1;
   const mA=gs.length?Math.max(...gs.map(g=>g.a)):0,mB=gs.length?Math.max(...gs.map(g=>g.b)):0;
@@ -703,7 +703,7 @@ function buildMatchShareText(gs,tnf,winnerTeam){
 }
 async function shareMatchText(text){
   if(navigator.share){
-    try{await navigator.share({title:"피클볼 경기 결과",text});return;}catch(e){if(e&&e.name==="AbortError")return;}
+    try{await navigator.share({title:"경기 결과",text});return;}catch(e){if(e&&e.name==="AbortError")return;}
   }
   if(navigator.clipboard&&navigator.clipboard.writeText){
     try{await navigator.clipboard.writeText(text);alert("경기 결과가 클립보드에 복사되었습니다.");return;}catch(e){}
