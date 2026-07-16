@@ -116,14 +116,10 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 .swap-btn:active{background:var(--blue-dim);}
 .swap-btn-main{width:38px;height:38px;background:var(--blue);border-color:var(--blue);color:#fff;}
 .swap-btn-main:active{background:#2f86dd;}
-.court-swap-controls{position:absolute;left:0;right:0;top:50%;display:flex;align-items:center;justify-content:center;gap:8px;transform:translateY(-50%);z-index:5;}
-.court-swap-btn{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.45);border:1.5px solid;line-height:1;}
-.court-swap-main{background:var(--blue);border-color:var(--blue);color:#fff;}
-.court-swap-main:active{background:#2f86dd;}
-.court-swap-a{background:var(--panel);border-color:var(--court-line);color:var(--court-line);}
-.court-swap-a:active{background:var(--blue-dim);color:#fff;border-color:var(--blue);}
-.court-swap-b{background:var(--panel);border-color:var(--court-line);color:var(--court-line);}
-.court-swap-b:active{background:#352800;color:var(--gold);border-color:var(--gold);}
+.swap-btn-a{border-color:var(--blue);color:var(--blue);}
+.swap-btn-a:active{background:var(--blue-dim);color:#fff;}
+.swap-btn-b{border-color:var(--gold);color:var(--gold);}
+.swap-btn-b:active{background:#352800;color:var(--gold);}
 
 .tap-zones{flex:1;display:flex;align-items:center;justify-content:center;gap:16px;margin:0 16px;padding:4px 0;min-height:140px;}
 .tap-zone{flex:1;max-width:190px;aspect-ratio:1;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:none;cursor:pointer;gap:4px;box-shadow:0 8px 22px rgba(0,0,0,0.4);}
@@ -131,6 +127,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 .tap-zone.zone-b{background:radial-gradient(circle at 32% 28%,#ffe08a,var(--gold) 65%);color:#241a05;}
 .tap-zone:active{filter:brightness(1.1);transform:scale(0.97);}
 .tap-zone:disabled{filter:grayscale(0.5) brightness(0.7);}
+.tap-zone.tap-zone-inactive{filter:grayscale(0.5) brightness(0.7);}
 .tap-zone .zlabel{font-size:12px;letter-spacing:1px;text-transform:uppercase;font-weight:700;}
 .tap-zone.zone-a .zlabel{color:rgba(255,255,255,0.88);}
 .tap-zone.zone-b .zlabel{color:rgba(36,26,5,0.75);}
@@ -139,7 +136,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 .tap-zone.zone-a .zhint{color:rgba(255,255,255,0.7);}
 .tap-zone.zone-b .zhint{color:rgba(36,26,5,0.6);}
 
-/* ?? Next Set Button ?? */
+/* ── Next Set Button ── */
 .next-set-btn{
   display:flex;align-items:center;justify-content:center;gap:8px;
   background:var(--blue);color:#fff;
@@ -154,16 +151,16 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
   50%{box-shadow:0 4px 26px rgba(59,158,255,0.65);}
 }
 
+.next-serve-pick{width:100%;max-width:340px;}
+.nsp-label{font-size:11px;font-weight:700;letter-spacing:0.3px;text-transform:uppercase;color:var(--text-dim);text-align:center;margin-bottom:8px;}
+.nsp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.nsp-btn{background:var(--panel);border:1.5px solid var(--line);border-radius:10px;padding:11px 8px;color:var(--text);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.nsp-btn:active{filter:brightness(1.08);}
+
 .controls-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px calc(12px + env(safe-area-inset-bottom));}
 .ctrl-btn{display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--line);color:var(--text-dim);padding:9px 13px;border-radius:10px;font-size:12.5px;font-weight:600;cursor:pointer;}
 .ctrl-btn:active{background:var(--panel-raised);}
 .ctrl-btn svg{width:14px;height:14px;}
-
-
-
-
-
-
 
 .score-toast{position:fixed;top:68px;left:50%;transform:translateX(-50%);background:var(--blue-dim);border:1.5px solid var(--blue);border-radius:12px;padding:7px 18px;font-size:19px;font-weight:800;color:var(--blue);letter-spacing:2px;white-space:nowrap;box-shadow:0 6px 20px rgba(0,0,0,0.5);z-index:300;pointer-events:none;animation:toastIn 0.18s ease,toastOut 0.3s ease 1.5s forwards;}
 @keyframes toastIn{from{opacity:0;transform:translateX(-50%) scale(0.85);}to{opacity:1;transform:translateX(-50%) scale(1);}}
@@ -222,7 +219,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 .roster-del-btn:active{background:#5a2020;color:#ff9b9b;}
 .picker-cancel{width:100%;padding:12px;border-radius:11px;border:none;font-size:14px;font-weight:700;cursor:pointer;background:var(--panel-raised);color:var(--text-dim);margin-top:6px;}
 
-/* ?먥븧 MATCH DETAIL MODAL ?먥븧 */
+/* ══ MATCH DETAIL MODAL ══ */
 .match-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.72);display:flex;align-items:flex-end;justify-content:center;z-index:500;}
 .match-modal{background:var(--panel);border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:94dvh;display:flex;flex-direction:column;overflow:hidden;border-top:1px solid var(--line);}
 .match-banner{text-align:center;padding:22px 48px 16px;border-bottom:1px solid var(--line);flex:none;position:relative;}
@@ -242,7 +239,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 .btn-secondary{background:var(--panel-raised);color:var(--text-dim);}
 .btn-secondary:active{background:var(--line);}
 
-/* ?? Details tab ?? */
+/* ── Details tab ── */
 .set-card{background:var(--panel-raised);border:1px solid var(--line);border-radius:14px;margin-bottom:12px;overflow:hidden;}
 .set-card-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--panel);}
 .set-card-label{font-size:11px;font-weight:800;color:var(--text-faint);letter-spacing:0.5px;text-transform:uppercase;}
@@ -256,7 +253,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 .set-score-num.winner{color:var(--win);}
 .set-score-num.loser{color:var(--text-faint);}
 
-/* ?? Stats tab ?? */
+/* ── Stats tab ── */
 .stat-block{margin-bottom:18px;}
 .stat-values{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px;gap:8px;}
 .stat-values .val-a,.stat-values .val-b{font-size:19px;font-weight:800;color:var(--text);}
@@ -270,7 +267,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 .stat-team-a{font-size:12.5px;font-weight:700;color:var(--blue);}
 .stat-team-b{font-size:12.5px;font-weight:700;color:var(--gold);}
 
-/* ?? Breakdown tab: ?명듃蹂??뱀뀡 ?? */
+/* ── Breakdown tab: 세트별 섹션 ── */
 .bd-set-section{margin-bottom:22px;}
 .bd-set-section:last-child{margin-bottom:4px;}
 .bd-set-header{
@@ -317,51 +314,26 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 .team-a-text{color:var(--blue);}
 .team-b-text{color:var(--gold);}
 @media(max-width:360px){.tap-zone .zscore{font-size:44px;}.tap-zones{gap:10px;}.tap-zone{max-width:146px;}.game-scores .gs{font-size:25px;min-width:30px;}.pname-btn{font-size:16px;max-width:120px;}}
-
-/* ?? ?명듃 ?쒖옉 ???쒕툕 ?좎닔 ?좏깮 ?ㅻ쾭?덉씠 ?? */
-.serve-pick-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px;}
-.serve-pick-card{background:var(--panel-raised);border-radius:20px;padding:24px 20px 20px;width:100%;max-width:340px;box-shadow:0 8px 32px rgba(0,0,0,0.6);}
-.serve-pick-title{text-align:center;font-size:18px;font-weight:800;color:var(--text);margin-bottom:4px;}
-.serve-pick-sub{text-align:center;font-size:12px;color:var(--text-dim);margin-bottom:18px;}
-.serve-pick-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;}
-.serve-pick-btn{background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:14px 8px;color:var(--text-dim);font-size:13px;font-weight:700;cursor:pointer;text-align:center;transition:all .15s;}
-.serve-pick-btn .sp-team{display:block;font-size:10px;font-weight:600;margin-bottom:4px;opacity:.7;}
-.serve-pick-btn .sp-name{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;}
-.serve-pick-btn.active{background:var(--blue-dim);border-color:var(--blue);color:#fff;}
-.serve-pick-btn.active .sp-team{opacity:.85;}
-.serve-pick-confirm{width:100%;padding:13px;background:var(--blue);border:none;border-radius:12px;color:#fff;font-size:15px;font-weight:800;cursor:pointer;letter-spacing:.3px;}
-.serve-pick-confirm:active{background:#2f86dd;}
 </style>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
 <div id="app"></div>
-<div id="wakelock-badge" class="wakelock-badge off">?봿 ?덉쟾 諛⑹? OFF</div>
-<div id="sync-badge" class="sync-badge sync-init">???곌껐 以?/div>
+<div id="wakelock-badge" class="wakelock-badge off">🔆 절전 방지 OFF</div>
+<div id="sync-badge" class="sync-badge sync-init">⏳ 연결 중</div>
 <div id="modal-root"></div>
 <div id="name-edit-root"></div>
 <div class="settings-overlay" id="settings-overlay"></div>
 <div class="settings-drawer" id="settings-drawer"></div>
 <script>
-// ? 移댁뭅???몄빋 釉뚮씪?곗? ?뚰뵾 ?
-(function(){
-  function isKakaoTalkInAppBrowser(){
-    return navigator.userAgent.toLowerCase().includes('kakaotalk');
-  }
-  if(isKakaoTalkInAppBrowser()){
-    var target_url='https://givemeryu-lab.github.io/TechnoPickleScorer/';
-    location.href='kakaotalk://web/openExternal?url='+encodeURIComponent(target_url);
-  }
-})();
-
 (function(){
 "use strict";
 
 /* WAKE LOCK */
 let _wakeLock=null;
 async function requestWakeLock(){if(!("wakeLock" in navigator))return;try{_wakeLock=await navigator.wakeLock.request("screen");updWake(true);_wakeLock.addEventListener("release",()=>{_wakeLock=null;updWake(false);});}catch(e){updWake(false);}}
-function updWake(on){const b=document.getElementById("wakelock-badge");if(!b)return;b.textContent=on?"?봿 ?붾㈃ 耳쒖쭚 ?좎?":"?봿 ?덉쟾 諛⑹? OFF";b.className="wakelock-badge"+(on?"":" off");}
+function updWake(on){const b=document.getElementById("wakelock-badge");if(!b)return;b.textContent=on?"🔆 화면 켜짐 유지":"🔆 절전 방지 OFF";b.className="wakelock-badge"+(on?"":" off");}
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&!_wakeLock)requestWakeLock();});
 requestWakeLock();
 
@@ -371,8 +343,8 @@ let _voiceEnabled=true,_voices=[];
 function loadVoices(){_voices=window.speechSynthesis?speechSynthesis.getVoices():[];}
 if(window.speechSynthesis){loadVoices();speechSynthesis.addEventListener("voiceschanged",loadVoices);}
 function pickVoice(){const p=["Samantha","Google US English","Alex","Karen"];for(const n of p){const f=_voices.find(v=>v.name===n);if(f)return f;}return _voices.find(v=>v.lang.startsWith("en-US"))||_voices.find(v=>v.lang.startsWith("en"))||_voices[0]||null;}
-function speakScore(ss,rs,sn){if(!_voiceEnabled||!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance((NW[ss]||ss)+"... "+(NW[rs]||rs)+"... "+(NW[sn]||sn));u.lang="en-US";u.rate=1.0;u.pitch=1.05;u.volume=1.0;const v=pickVoice();if(v)u.voice=v;if(speechSynthesis.paused)speechSynthesis.resume();speechSynthesis.speak(u);}
-function showScoreToast(ss,rs,sn){const old=document.getElementById("score-toast");if(old)old.remove();const t=document.createElement("div");t.id="score-toast";t.className="score-toast";t.textContent=(NW[ss]||ss)+" 쨌 "+(NW[rs]||rs)+" 쨌 "+(NW[sn]||sn);document.body.appendChild(t);setTimeout(()=>{const el=document.getElementById("score-toast");if(el)el.remove();},1800);}
+function speakScore(ss,rs,sn){if(!_voiceEnabled||!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance((NW[ss]||ss)+"... "+(NW[rs]||rs)+"... "+(NW[sn]||sn));u.lang="en-US";u.rate=0.88;u.pitch=1.05;u.volume=1.0;const v=pickVoice();if(v)u.voice=v;if(speechSynthesis.paused)speechSynthesis.resume();speechSynthesis.speak(u);}
+function showScoreToast(ss,rs,sn){const old=document.getElementById("score-toast");if(old)old.remove();const t=document.createElement("div");t.id="score-toast";t.className="score-toast";t.textContent=`${ss}-${rs}-${sn}`;document.body.appendChild(t);setTimeout(()=>{const el=document.getElementById("score-toast");if(el)el.remove();},1800);}
 function announceScore(g){if(!g)return;const ss=g.server==="a"?g.a:g.b,rs=g.server==="a"?g.b:g.a;showScoreToast(ss,rs,g.serverNum);speakScore(ss,rs,g.serverNum);}
 
 /* FIREBASE */
@@ -382,14 +354,15 @@ const FC={apiKey:"AIzaSyA4GAT7ZK1ZKHArzx7kFSUp1MoLFeSGcQ0",authDomain:"dpad-dfc6
 function initFirebase(){try{if(!firebase.apps.length)firebase.initializeApp(FC);_db=firebase.firestore();return true;}catch(e){return false;}}
 function getDeviceId(){let id=localStorage.getItem(DEVICE_ID_KEY);if(!id){id="dev_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,8);localStorage.setItem(DEVICE_ID_KEY,id);}return id;}
 const DEVICE_ID=getDeviceId();
-function setSyncStatus(s){const b=document.getElementById("sync-badge");if(!b)return;const map={init:{icon:"??,text:"?곌껐 以?,cls:"sync-init"},syncing:{icon:"??,text:"???以?,cls:"sync-syncing"},ok:{icon:"??,text:"?숆린?붾맖",cls:"sync-ok"},offline:{icon:"??,text:"?ㅽ봽?쇱씤",cls:"sync-offline"}};const m=map[s]||map.ok;b.className="sync-badge "+m.cls;b.textContent=m.icon+" "+m.text;}
+function setSyncStatus(s){const b=document.getElementById("sync-badge");if(!b)return;const map={init:{icon:"⏳",text:"연결 중",cls:"sync-init"},syncing:{icon:"↑",text:"저장 중",cls:"sync-syncing"},ok:{icon:"✓",text:"동기화됨",cls:"sync-ok"},offline:{icon:"⚡",text:"오프라인",cls:"sync-offline"}};const m=map[s]||map.ok;b.className="sync-badge "+m.cls;b.textContent=m.icon+" "+m.text;}
 function save(){if(!_db){setSyncStatus("offline");return;}setSyncStatus("syncing");_db.collection("sessions").doc(DEVICE_ID).set({data:JSON.stringify(state),updatedAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>setSyncStatus("ok")).catch(()=>setSyncStatus("offline"));}
 async function loadFromFirestore(){if(!_db)return null;try{const d=await _db.collection("sessions").doc(DEVICE_ID).get();if(d.exists&&d.data().data)return JSON.parse(d.data().data);}catch(e){}return null;}
 function subscribeRealtime(){if(!_db)return;if(_unsubscribe)_unsubscribe();_unsubscribe=_db.collection("sessions").doc(DEVICE_ID).onSnapshot({includeMetadataChanges:false},(doc)=>{if(!doc.exists||!doc.data()?.data||doc.metadata.hasPendingWrites)return;try{const r=JSON.parse(doc.data().data);Object.assign(state,r);render();setSyncStatus("ok");}catch(e){}},()=>setSyncStatus("offline"));}
 async function bootstrap(){setSyncStatus("init");const fbOk=initFirebase();if(fbOk){const remote=await loadFromFirestore();state=remote||freshState();ensureState();setSyncStatus("ok");subscribeRealtime();}else{state=freshState();}render();}
 
-/* MATCH HISTORY (DB) ???꾨즺??寃쎄린(?쒕━利?瑜?蹂꾨룄 而щ젆?섏뿉 ?곴뎄 ???*/
+/* MATCH HISTORY (DB) — 완료된 경기(시리즈)를 별도 컬렉션에 영구 저장 */
 let _matchSaved=false;
+let _nextServerNum=1;
 async function saveMatchRecord(){
   if(!_db)return;
   try{
@@ -422,7 +395,7 @@ async function loadHistory(){
 }
 function closeHistory(){_modal=null;_historyDetail=null;render();}
 async function deleteHistoryItem(id){
-  if(!confirm("??寃쎄린 湲곕줉????젣?좉퉴??"))return;
+  if(!confirm("이 경기 기록을 삭제할까요?"))return;
   try{await _db.collection("matches").doc(id).delete();}catch(e){}
   _historyMatches=(_historyMatches||[]).filter(m=>m.id!==id);
   render();
@@ -441,13 +414,17 @@ function checkGameWin(g){const ptw=state.pointsToWin,wb=state.winBy;if(g.a>=ptw&
 function checkSeriesWin(){const h=Math.ceil(ST/2);if(gamesWon("a")>=h)return"a";if(gamesWon("b")>=h)return"b";return null;}
 function isMatchOver(){return checkSeriesWin()!==null&&!state.current;}
 
-/* FIX 2: "?ㅼ쓬 ?명듃" 踰꾪듉 議곌굔
-   - state.current===null : ?꾩옱 寃뚯엫???놁쓬 (吏곸쟾 寃뚯엫??諛⑷툑 ?앸궓)
-   - state.gamesArr??留덉?留?寃뚯엫??winner媛 ?덉쓬 : ??寃쎄린媛 ?뺤긽 醫낅즺??   - !isMatchOver() : ?꾩쭅 ?쒕━利덇? ?앸굹吏 ?딆쓬
+/* FIX 2: "다음 세트" 버튼 조건
+   - state.current===null : 현재 게임이 없음 (직전 게임이 방금 끝남)
+   - state.gamesArr의 마지막 게임에 winner가 있음 : 한 경기가 정상 종료됨
+   - !isMatchOver() : 아직 시리즈가 끝나지 않음
 */
 function canStartNextSet(){
-  if(state.current)return false;          // 寃쎄린 以묒씠硫?????  if(isMatchOver())return false;           // ?쒕━利??앸굹硫?????  const last=state.gamesArr[state.gamesArr.length-1];
-  return !!(last&&last.winner);            // 留덉?留?寃쎄린媛 醫낅즺??寃쎌슦留?}
+  if(state.current)return false;          // 경기 중이면 안 됨
+  if(isMatchOver())return false;           // 시리즈 끝나면 안 됨
+  const last=state.gamesArr[state.gamesArr.length-1];
+  return !!(last&&last.winner);            // 마지막 경기가 종료된 경우만
+}
 
 function scorePoint(team){
   const g=state.current;if(!g)return;
@@ -457,7 +434,7 @@ function scorePoint(team){
   g.pointLog.push(log);
   const w=checkGameWin(g);
   if(!w){announceScore(g);}
-  else{if(_voiceEnabled&&window.speechSynthesis){speechSynthesis.cancel();const wn=w==="a"?(state.players.a1||"Team A"):(state.players.b1||"Team B");const u=new SpeechSynthesisUtterance("Game! "+wn+" wins!");u.lang="en-US";u.rate=0.9;u.pitch=1.1;const v=pickVoice();if(v)u.voice=v;speechSynthesis.speak(u);}g.winner=w;state.gamesArr.push(g);state.current=null;}
+  else{if(_voiceEnabled&&window.speechSynthesis){speechSynthesis.cancel();const wn=w==="a"?(state.players.a1||"Team A"):(state.players.b1||"Team B");const u=new SpeechSynthesisUtterance("Game! "+wn+" wins!");u.lang="en-US";u.rate=0.9;u.pitch=1.1;const v=pickVoice();if(v)u.voice=v;speechSynthesis.speak(u);}g.winner=w;state.gamesArr.push(g);state.current=null;_nextServerNum=1;}
   save();
   if(isMatchOver()){if(!_matchSaved){_matchSaved=true;saveMatchRecord();}_matchModalTab="details";_modal=()=>renderMatchModal();render();}else{render();}
 }
@@ -471,7 +448,6 @@ function undoPoint(){
 
 /* NAME EDIT */
 let _nameEdit=null;
-let _servePick=null; // {fromNset:bool} ???명듃 ?쒖옉 ???쒕툕?좎닔 ?좏깮 ?앹뾽
 function openNameEdit(field){_nameEdit={field};renderNameEdit();}
 function closeNameEdit(){_nameEdit=null;document.getElementById("name-edit-root").innerHTML="";}
 
@@ -480,25 +456,25 @@ function renderNameEdit(){
   if(!_nameEdit){root.innerHTML="";return;}
   const f=_nameEdit.field;
   const isA=f.startsWith("a");
-  const numStr=f.endsWith("1")?"?좎닔 1":"?좎닔 2";
-  const teamStr=isA?"? A":"? B";
+  const numStr=f.endsWith("1")?"선수 1":"선수 2";
+  const teamStr=isA?"팀 A":"팀 B";
   const cur=state.players[f]||"";
   const roster=state.roster;
   const rHtml=roster.length===0
-    ?`<div class="ne-roster-empty">紐낅떒 ?놁쓬 ??吏곸젒 ?낅젰?섏꽭??/div>`
-    :roster.map(n=>`<div class="ne-roster-item"><button class="ne-roster-pick" data-n="${esc(n)}">${esc(n)}</button><button class="ne-roster-del" data-d="${esc(n)}">??/button></div>`).join("");
+    ?`<div class="ne-roster-empty">명단 없음 — 직접 입력하세요</div>`
+    :roster.map(n=>`<div class="ne-roster-item"><button class="ne-roster-pick" data-n="${esc(n)}">${esc(n)}</button><button class="ne-roster-del" data-d="${esc(n)}">✕</button></div>`).join("");
   root.innerHTML=`<div class="name-edit-overlay" id="ne-bg">
     <div class="name-edit-sheet">
-      <div class="ne-title"><span class="ne-badge ${isA?"ne-badge-a":"ne-badge-b"}">${teamStr} 쨌 ${numStr}</span>?좎닔 ?대쫫 蹂寃?/div>
+      <div class="ne-title"><span class="ne-badge ${isA?"ne-badge-a":"ne-badge-b"}">${teamStr} · ${numStr}</span>선수 이름 변경</div>
       <div class="ne-input-row">
-        <input class="ne-input" id="ne-inp" placeholder="?대쫫???낅젰?섏꽭?? value="${esc(cur)}" autocomplete="off" autocorrect="off" spellcheck="false">
-        <button class="ne-clear" id="ne-clr">??/button>
+        <input class="ne-input" id="ne-inp" placeholder="이름을 입력하세요" value="${esc(cur)}" autocomplete="off" autocorrect="off" spellcheck="false">
+        <button class="ne-clear" id="ne-clr">✕</button>
       </div>
-      ${roster.length>0?`<div class="ne-roster-label">?뱥 紐낅떒?먯꽌 ?좏깮</div>`:""}
+      ${roster.length>0?`<div class="ne-roster-label">📋 명단에서 선택</div>`:""}
       <div class="ne-roster">${rHtml}</div>
       <div class="ne-actions">
-        <button class="ne-cancel-btn" id="ne-can">痍⑥냼</button>
-        <button class="ne-confirm" id="ne-ok">?????/button>
+        <button class="ne-cancel-btn" id="ne-can">취소</button>
+        <button class="ne-confirm" id="ne-ok">✓ 저장</button>
       </div>
     </div>
   </div>`;
@@ -533,10 +509,9 @@ function renderApp(){
 
   function renderGS(team){let h="";state.gamesArr.forEach(pg=>{const w=pg.winner===team;h+=`<span class="gs${w?" won":""}">${team==="a"?pg.a:pg.b}</span>`;});if(g)h+=`<span class="gs current">${team==="a"?g.a:g.b}</span>`;return h;}
 
-  function setChips(){let h="";for(let i=0;i<ST;i++){const pg=state.gamesArr[i];if(pg){h+=`<div class="set-chip ${pg.winner==="a"?"set-a":"set-b"}">SET ${i+1}: ${pg.a}-${pg.b}</div>`;}else if(g&&state.gamesArr.length===i){h+=`<div class="set-chip set-current">SET ${i+1}: ${g.a}-${g.b} ??/div>`;}else{h+=`<div class="set-chip" style="opacity:0.35">SET ${i+1}</div>`;}}return h;}
+  function setChips(){let h="";for(let i=0;i<ST;i++){const pg=state.gamesArr[i];if(pg){h+=`<div class="set-chip ${pg.winner==="a"?"set-a":"set-b"}">SET ${i+1}: ${pg.a}-${pg.b}</div>`;}else if(g&&state.gamesArr.length===i){h+=`<div class="set-chip set-current">SET ${i+1}: ${g.a}-${g.b} ▶</div>`;}else{h+=`<div class="set-chip" style="opacity:0.35">SET ${i+1}</div>`;}}return h;}
 
   let courtHtml="";
-  let posCtrlHtml="";
   if(cg){
     const sw2=cg.teamSideSwapped,lt=sw2?"b":"a",rt=sw2?"a":"b";
     function quad(team,pos,isTop,sR){
@@ -550,11 +525,8 @@ function renderApp(){
         ${isSrv?`<div class="serve-balls"><svg class="ball-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg></div>`:""}
       </div>`;
     }
-    const swCtrl=preGame
-    ?`<div class="swap-controls"><button class="swap-btn" data-swap="left">??/button><button class="swap-btn swap-btn-main" data-swap="teams">??/button><button class="swap-btn" data-swap="right">??/button></div>`
-    :`<div class="court-swap-controls"><button class="court-swap-btn ${sw2?'court-swap-b':'court-swap-a'}" data-swap="left">??/button><button class="court-swap-btn court-swap-main" data-swap="teams">??/button><button class="court-swap-btn ${sw2?'court-swap-a':'court-swap-b'}" data-swap="right">??/button></div>`;
+    const swCtrl=`<div class="swap-controls"><button class="swap-btn swap-btn-a" data-pos="a" title="A팀 선수 교체">⇄</button><button class="swap-btn swap-btn-main" data-pos="teams" title="팀 위치 교체">⇆</button><button class="swap-btn swap-btn-b" data-pos="b" title="B팀 선수 교체">⇄</button></div>`;
     courtHtml=`<div class="court-wrap"><div class="court"><div class="court-side side-left">${quad(lt,"right",true,false)}${quad(lt,"left",false,false)}</div><div class="court-side side-right">${quad(rt,"left",true,true)}${quad(rt,"right",false,true)}</div>${swCtrl}</div></div>`;
-    posCtrlHtml="";
   }
 
   const voiceIcon=_voiceEnabled
@@ -562,43 +534,53 @@ function renderApp(){
     :`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>`;
 
   function pBtn(field,label,isSrv,sn){
-    return`<button class="pname-btn" data-ef="${field}">${isSrv?`<span class="serve-r">${sn}</span>`:""}${esc(label)}<span class="edit-hint">??/span></button>`;
+    return`<button class="pname-btn" data-ef="${field}">${isSrv?`<span class="serve-r">${sn}</span>`:""}${esc(label)}<span class="edit-hint">✎</span></button>`;
   }
 
-  /* FIX 2: ?ㅼ쓬 ?명듃 踰꾪듉 ??nextSetReady ???뚮쭔 ?뚮뜑 */
+  /* FIX 2: 다음 세트 버튼 — nextSetReady 일 때만 렌더 */
   const nextSetHtml=nextSetReady
-    ?`<button class="next-set-btn" id="btn-nset">???ㅼ쓬 ?명듃</button>`
+    ?`<button class="next-set-btn" id="btn-nset">▶ 다음 세트</button>`
     :"";
 
-  /* ??議?or 寃곌낵 ?붾㈃ */
+  /* 탭 존 or 결과 화면 */
   let tapZoneHtml="";
   if(matchOver){
     tapZoneHtml=`<div class="tap-zones"><div style="text-align:center;padding:16px 0;">
-      <div style="font-size:38px;margin-bottom:8px;">?룇</div>
-      <div style="font-size:20px;font-weight:800;color:var(--win)">${sw==="a"?`${esc(tn("a",1))} / ${esc(tn("a",2))}`:`${esc(tn("b",1))} / ${esc(tn("b",2))}`} ?곗듅!</div>
-      <div style="font-size:13px;color:var(--text-dim);margin-top:6px">${gA} : ${gB} ?명듃</div>
-      <button id="btn-md2" style="margin-top:14px;background:var(--blue);color:#fff;border:none;border-radius:12px;padding:11px 24px;font-size:14px;font-weight:700;cursor:pointer;">?뱤 Match Detail 蹂닿린</button>
+      <div style="font-size:38px;margin-bottom:8px;">🏆</div>
+      <div style="font-size:20px;font-weight:800;color:var(--win)">${sw==="a"?`${esc(tn("a",1))} / ${esc(tn("a",2))}`:`${esc(tn("b",1))} / ${esc(tn("b",2))}`} 우승!</div>
+      <div style="font-size:13px;color:var(--text-dim);margin-top:6px">${gA} : ${gB} 세트</div>
+      <button id="btn-md2" style="margin-top:14px;background:var(--blue);color:#fff;border:none;border-radius:12px;padding:11px 24px;font-size:14px;font-weight:700;cursor:pointer;">📊 Match Detail 보기</button>
     </div></div>`;
   } else if(nextSetReady){
-    /* FIX 2: ?명듃 醫낅즺 ???ㅼ쓬 ?명듃 ?湲??붾㈃ */
+    /* FIX 2: 세트 종료 → 다음 세트 대기 화면 */
     const last=state.gamesArr[state.gamesArr.length-1];
     const winTeam=last.winner;
     const winColor=winTeam==="a"?"var(--blue)":"var(--gold)";
+    const ns=last.winner==="a"?"b":"a";
+    const nsColor=ns==="a"?"var(--blue)":"var(--gold)";
+    const serverPickHtml=`<div class="next-serve-pick">
+      <div class="nsp-label">다음 세트 첫 서브 선수 · 팀 ${ns.toUpperCase()}</div>
+      <div class="nsp-grid">
+        <button class="nsp-btn${_nextServerNum===1?" active":""}" data-nsp="1" style="${_nextServerNum===1?`border-color:${nsColor};background:${nsColor};color:#fff;`:""}">${esc(tn(ns,1))}</button>
+        <button class="nsp-btn${_nextServerNum===2?" active":""}" data-nsp="2" style="${_nextServerNum===2?`border-color:${nsColor};background:${nsColor};color:#fff;`:""}">${esc(tn(ns,2))}</button>
+      </div>
+    </div>`;
     tapZoneHtml=`<div class="tap-zones" style="flex-direction:column;gap:12px;">
       <div style="text-align:center;">
-        <div style="font-size:28px;margin-bottom:6px;">?럦</div>
+        <div style="font-size:28px;margin-bottom:6px;">🎉</div>
         <div style="font-size:17px;font-weight:800;color:${winColor}">${winTeam==="a"?`${esc(tn("a",1))} / ${esc(tn("a",2))}`:`${esc(tn("b",1))} / ${esc(tn("b",2))}`} SET WIN!</div>
-        <div style="font-size:13px;color:var(--text-dim);margin-top:4px">?명듃 ?ㅼ퐫??${last.a} : ${last.b} &nbsp;쨌&nbsp; ${gA} : ${gB} ?명듃</div>
+        <div style="font-size:13px;color:var(--text-dim);margin-top:4px">세트 스코어 ${last.a} : ${last.b} &nbsp;·&nbsp; ${gA} : ${gB} 세트</div>
       </div>
+      ${serverPickHtml}
       ${nextSetHtml}
     </div>`;
   } else {
     tapZoneHtml=`<div class="tap-zones">
-      <button class="tap-zone zone-a" id="btn-score-a" ${!g?"disabled":""}>
-        <span class="zlabel">? A</span><span class="zscore">${g?g.a:0}</span><span class="zhint">??븯???앹젏</span>
+      <button class="tap-zone zone-a${!g?" tap-zone-inactive":""}" id="btn-score-a">
+        <span class="zlabel">팀 A</span><span class="zscore">${g?g.a:0}</span><span class="zhint">탭하여 득점</span>
       </button>
-      <button class="tap-zone zone-b" id="btn-score-b" ${!g?"disabled":""}>
-        <span class="zlabel">? B</span><span class="zscore">${g?g.b:0}</span><span class="zhint">??븯???앹젏</span>
+      <button class="tap-zone zone-b${!g?" tap-zone-inactive":""}" id="btn-score-b">
+        <span class="zlabel">팀 B</span><span class="zscore">${g?g.b:0}</span><span class="zhint">탭하여 득점</span>
       </button>
     </div>`;
   }
@@ -609,13 +591,13 @@ function renderApp(){
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
     <div class="titles">
-      <h1>?룗 Pickleball <span style="font-size:13px;color:var(--text-dim);font-weight:500">SET ${curSet||1} / ${ST}</span></h1>
-      <div class="subtitle">? A ${gA} : ${gB} ? B &nbsp;쨌&nbsp; ${state.pointsToWin}??${state.winBy===2?"2?먯감":""}</div>
+      <h1>🏓 Pickleball <span style="font-size:13px;color:var(--text-dim);font-weight:500">SET ${curSet||1} / ${ST}</span></h1>
+      <div class="subtitle">팀 A ${gA} : ${gB} 팀 B &nbsp;·&nbsp; ${state.pointsToWin}점 ${state.winBy===2?"2점차":""}</div>
     </div>
     <div class="header-actions">
       <button class="icon-btn${_voiceEnabled?" voice-on":""}" id="btn-voice">${voiceIcon}</button>
       ${matchOver?`<button class="icon-btn" id="btn-match-detail" style="color:var(--win)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg></button>`:""}
-      <button class="icon-btn" id="btn-history" title="寃쎄린 湲곕줉"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg></button>
+      <button class="icon-btn" id="btn-history" title="경기 기록"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg></button>
       <button class="icon-btn" id="btn-reset"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.9"/></svg></button>
     </div>
   </div>
@@ -638,12 +620,12 @@ function renderApp(){
         <div class="game-scores">${renderGS("b")}</div>
       </div>
     </div>
-    ${g?`<div class="serve-indicator-row">${esc(tn(g.server,g.serverNum))} ?쒕툕 쨌 ? ${g.server.toUpperCase()}-${g.serverNum}</div>`:""}
+    ${g?`<div class="serve-indicator-row">${esc(tn(g.server,g.serverNum))} 서브 · 팀 ${g.server.toUpperCase()}-${g.serverNum}</div>`:""}
     <div class="set-progress">${setChips()}</div>
     ${courtHtml}
     ${tapZoneHtml}
     <div class="controls-bar">
-      <button class="ctrl-btn" id="btn-undo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>?섎룎由ш린</button>
+      <button class="ctrl-btn" id="btn-undo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>되돌리기</button>
     </div>
   </div>`;
   document.getElementById("app").innerHTML=html;
@@ -652,29 +634,29 @@ function renderApp(){
 /* DRAWER */
 function renderDrawer(){
   const p=state.players,sc=state.startingServerChoice;
-  const servers=[{team:"a",num:1,label:p.a1||"?좎닔 1"},{team:"a",num:2,label:p.a2||"?좎닔 2"},{team:"b",num:1,label:p.b1||"?좎닔 3"},{team:"b",num:2,label:p.b2||"?좎닔 4"}];
+  const servers=[{team:"a",num:1,label:p.a1||"선수 1"},{team:"b",num:1,label:p.b1||"선수 3"},{team:"a",num:2,label:p.a2||"선수 2"},{team:"b",num:2,label:p.b2||"선수 4"}];
   const dr=document.getElementById("settings-drawer"),ov=document.getElementById("settings-overlay");
   dr.className="settings-drawer"+(_drawerOpen?" open":"");
   ov.className="settings-overlay"+(_drawerOpen?" open":"");
-  dr.innerHTML=`<div class="drawer-header"><h2>?숋툘 寃쎄린 ?ㅼ젙</h2><button class="drawer-close" id="btn-dc">??/button></div>
+  dr.innerHTML=`<div class="drawer-header"><h2>⚙️ 경기 설정</h2><button class="drawer-close" id="btn-dc">✕</button></div>
   <div class="drawer-body">
-    <button class="history-menu-btn" id="btn-history-menu">?뾺截???λ맂 寃쎄린 湲곕줉 蹂닿린 (DB)</button>
-    <div class="team-block team-a"><div class="team-label"><span class="dot"></span>? A</div>
-      <div class="player-input"><div class="pos-tag">1</div><input id="pa1" placeholder="?좎닔 1" value="${esc(p.a1)}" data-field="a1"><button class="picker-btn" data-pick="a1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div>
-      <div class="player-input"><div class="pos-tag">2</div><input id="pa2" placeholder="?좎닔 2" value="${esc(p.a2)}" data-field="a2"><button class="picker-btn" data-pick="a2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div>
+    <button class="history-menu-btn" id="btn-history-menu">🗂️ 저장된 경기 기록 보기 (DB)</button>
+    <div class="team-block team-a"><div class="team-label"><span class="dot"></span>팀 A</div>
+      <div class="player-input"><div class="pos-tag">1</div><input id="pa1" placeholder="선수 1" value="${esc(p.a1)}" data-field="a1"><button class="picker-btn" data-pick="a1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div>
+      <div class="player-input"><div class="pos-tag">2</div><input id="pa2" placeholder="선수 2" value="${esc(p.a2)}" data-field="a2"><button class="picker-btn" data-pick="a2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div>
     </div>
-    <div class="team-block team-b"><div class="team-label"><span class="dot"></span>? B</div>
-      <div class="player-input"><div class="pos-tag">1</div><input id="pb1" placeholder="?좎닔 3" value="${esc(p.b1)}" data-field="b1"><button class="picker-btn" data-pick="b1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div>
-      <div class="player-input"><div class="pos-tag">2</div><input id="pb2" placeholder="?좎닔 4" value="${esc(p.b2)}" data-field="b2"><button class="picker-btn" data-pick="b2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div>
+    <div class="team-block team-b"><div class="team-label"><span class="dot"></span>팀 B</div>
+      <div class="player-input"><div class="pos-tag">1</div><input id="pb1" placeholder="선수 3" value="${esc(p.b1)}" data-field="b1"><button class="picker-btn" data-pick="b1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div>
+      <div class="player-input"><div class="pos-tag">2</div><input id="pb2" placeholder="선수 4" value="${esc(p.b2)}" data-field="b2"><button class="picker-btn" data-pick="b2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div>
     </div>
-    <div class="server-select-block"><div class="team-label server-select-label"><span class="dot"></span>泥??쒕툕 ?좎닔</div>
-      <div class="server-choice-grid">${servers.map(s=>`<div class="server-choice${sc.team===s.team&&sc.num===s.num?" active":""}" data-sct="${s.team}" data-scn="${s.num}"><small style="font-size:10px;color:${sc.team===s.team&&sc.num===s.num?"rgba(255,255,255,0.65)":"var(--text-faint)"}">? ${s.team.toUpperCase()}</small><span class="sc-name">${esc(s.label)}</span></div>`).join("")}</div>
+    <div class="server-select-block"><div class="team-label server-select-label"><span class="dot"></span>첫 서브 선수</div>
+      <div class="server-choice-grid">${servers.map(s=>`<div class="server-choice${sc.team===s.team&&sc.num===s.num?" active":""}" data-sct="${s.team}" data-scn="${s.num}"><small style="font-size:10px;color:${sc.team===s.team&&sc.num===s.num?"rgba(255,255,255,0.65)":"var(--text-faint)"}">팀 ${s.team.toUpperCase()}</small><span class="sc-name">${esc(s.label)}</span></div>`).join("")}</div>
     </div>
-    <div class="game-settings-row"><div class="gs-label"><div class="t">紐⑺몴 ?먯닔</div><div class="d">寃뚯엫 醫낅즺 ?먯닔</div></div><div class="stepper"><button data-step="ptw" data-dir="-1">??/button><span class="val">${state.pointsToWin}</span><button data-step="ptw" data-dir="1">+</button></div></div>
-    <div class="game-settings-row"><div class="gs-label"><div class="t">?밸━ 議곌굔</div><div class="d">?먯닔 李⑥씠</div></div><div class="win-by-toggle"><button class="${state.winBy===2?"active":""}" data-wb="2">2??李?/button><button class="${state.winBy===1?"active":""}" data-wb="1">?먯닔留?/button></div></div>
-    <div class="game-settings-row" style="opacity:0.5;pointer-events:none;"><div class="gs-label"><div class="t">?쒕━利?/div><div class="d">怨좎젙</div></div><div class="stepper"><span class="val" style="font-size:13px">3??2?좎듅</span></div></div>
+    <div class="game-settings-row"><div class="gs-label"><div class="t">목표 점수</div><div class="d">게임 종료 점수</div></div><div class="stepper"><button data-step="ptw" data-dir="-1">−</button><span class="val">${state.pointsToWin}</span><button data-step="ptw" data-dir="1">+</button></div></div>
+    <div class="game-settings-row"><div class="gs-label"><div class="t">승리 조건</div><div class="d">점수 차이</div></div><div class="win-by-toggle"><button class="${state.winBy===2?"active":""}" data-wb="2">2점 차</button><button class="${state.winBy===1?"active":""}" data-wb="1">점수만</button></div></div>
+    <div class="game-settings-row" style="opacity:0.5;pointer-events:none;"><div class="gs-label"><div class="t">시리즈</div><div class="d">고정</div></div><div class="stepper"><span class="val" style="font-size:13px">3전 2선승</span></div></div>
     <div class="error-msg">${_setupErr}</div>
-    <button class="drawer-start-btn" id="btn-start">??寃쎄린 ?덈줈 ?쒖옉</button>
+    <button class="drawer-start-btn" id="btn-start">▶ 경기 새로 시작</button>
   </div>`;
 }
 
@@ -686,10 +668,10 @@ function renderMatchModal(){
   let body=_matchModalTab==="details"?renderMatchDetails():_matchModalTab==="stats"?renderMatchStats():renderMatchBreakdown();
   return`<div class="match-modal-overlay" id="mmo">
     <div class="match-modal">
-      <div class="match-banner"><div class="match-trophy">?룇</div><div class="match-winner-name"><span class="${wc}">${wt}</span> ?곗듅!</div><div class="match-winner-sub">?명듃 ?ㅼ퐫??${gA} : ${gB} &nbsp;쨌&nbsp; 3??2?좎듅</div><button class="match-close-x" id="match-close-x">??/button></div>
+      <div class="match-banner"><div class="match-trophy">🏆</div><div class="match-winner-name"><span class="${wc}">${wt}</span> 우승!</div><div class="match-winner-sub">세트 스코어 ${gA} : ${gB} &nbsp;·&nbsp; 3전 2선승</div><button class="match-close-x" id="match-close-x">✕</button></div>
       <div class="match-tabs"><button class="match-tab${_matchModalTab==="details"?" active":""}" data-mt="details">Details</button><button class="match-tab${_matchModalTab==="stats"?" active":""}" data-mt="stats">Stats</button><button class="match-tab${_matchModalTab==="breakdown"?" active":""}" data-mt="breakdown">Breakdown</button></div>
       <div class="match-body">${body}</div>
-      <div class="match-footer"><button class="btn-primary" id="btn-new-series">?봽 ???쒕━利??쒖옉</button><button class="btn-secondary" id="btn-close-match">?リ린</button></div>
+      <div class="match-footer"><button class="btn-primary" id="btn-new-series">🔄 새 시리즈 시작</button><button class="btn-secondary" id="btn-share-match">📤 경기결과 공유</button><button class="btn-secondary" id="btn-close-match">닫기</button></div>
     </div>
   </div>`;
 }
@@ -698,15 +680,44 @@ function renderMatchDetails(){return renderDetailsGeneric(state.gamesArr,tn);}
 function renderMatchStats(){return renderStatsGeneric(state.gamesArr,tn);}
 function renderMatchBreakdown(){return renderBreakdownGeneric(state.gamesArr,tn);}
 
-/* ?ъ궗??媛?ν븳 ?뚮뜑?????꾩옱 吏꾪뻾以묒씤 寃쎄린(state.gamesArr)? DB 湲곕줉(rec.games) ?묒そ?먯꽌 ?ъ슜 */
+/* SHARE */
+function buildMatchShareText(gs,tnf,winnerTeam){
+  const teamA=`${tnf("a",1)} / ${tnf("a",2)}`;
+  const teamB=`${tnf("b",1)} / ${tnf("b",2)}`;
+  const gA=gs.filter(g=>g.winner==="a").length,gB=gs.filter(g=>g.winner==="b").length;
+  const winnerNames=winnerTeam==="a"?teamA:teamB;
+  const lines=[`🏓 피클볼 경기 결과`,`${teamA}  vs  ${teamB}`,``,`🏆 ${winnerNames} 승 (${gA} : ${gB})`,``];
+  gs.forEach((g,i)=>{lines.push(`SET ${i+1}: ${g.a} - ${g.b}  (${g.winner==="a"?teamA:teamB} 승)`);});
+  const tA=gs.reduce((s,g)=>s+g.a,0),tB=gs.reduce((s,g)=>s+g.b,0),tot=tA+tB||1;
+  const mA=gs.length?Math.max(...gs.map(g=>g.a)):0,mB=gs.length?Math.max(...gs.map(g=>g.b)):0;
+  lines.push(``,`📊 STATS`);
+  lines.push(`세트 승리: ${gA} - ${gB}`);
+  lines.push(`총 득점: ${tA} - ${tB}`);
+  lines.push(`득점률: ${Math.round(tA/tot*100)}% - ${Math.round(tB/tot*100)}%`);
+  lines.push(`최고 세트 점수: ${mA} - ${mB}`);
+  return lines.join("\n");
+}
+async function shareMatchText(text){
+  if(navigator.share){
+    try{await navigator.share({title:"피클볼 경기 결과",text});return;}catch(e){if(e&&e.name==="AbortError")return;}
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    try{await navigator.clipboard.writeText(text);alert("경기 결과가 클립보드에 복사되었습니다.");return;}catch(e){}
+  }
+  window.prompt("아래 내용을 복사하세요:",text);
+}
+function shareCurrentMatch(){shareMatchText(buildMatchShareText(state.gamesArr,tn,checkSeriesWin()));}
+function shareHistoryMatch(rec){if(!rec)return;shareMatchText(buildMatchShareText(rec.games||[],tnFrom(rec),rec.winner));}
+
+/* 재사용 가능한 렌더러 — 현재 진행중인 경기(state.gamesArr)와 DB 기록(rec.games) 양쪽에서 사용 */
 function renderDetailsGeneric(gs,tnf){
-  if(!gs.length)return`<p style="color:var(--text-dim);text-align:center;padding:20px 0">湲곕줉 ?놁쓬</p>`;
+  if(!gs.length)return`<p style="color:var(--text-dim);text-align:center;padding:20px 0">기록 없음</p>`;
   return gs.map((g,i)=>{
     const wa=g.winner==="a";
     return`<div class="set-card">
       <div class="set-card-header">
-        <span class="set-card-label">SET ${i+1} &nbsp;쨌&nbsp; ${(g.pointLog||[]).length} ?ъ씤??/span>
-        <span class="set-card-badge ${wa?"badge-a":"badge-b"}">${wa?"? A ??:"? B ??}</span>
+        <span class="set-card-label">SET ${i+1} &nbsp;·&nbsp; ${(g.pointLog||[]).length} 포인트</span>
+        <span class="set-card-badge ${wa?"badge-a":"badge-b"}">${wa?"팀 A 승":"팀 B 승"}</span>
       </div>
       <div class="set-score-row"><span class="set-score-team team-a-text">${esc(tnf("a",1))} / ${esc(tnf("a",2))}</span><span class="set-score-num ${wa?"winner":"loser"}">${g.a}</span></div>
       <div class="set-score-row"><span class="set-score-team team-b-text">${esc(tnf("b",1))} / ${esc(tnf("b",2))}</span><span class="set-score-num ${!wa?"winner":"loser"}">${g.b}</span></div>
@@ -718,9 +729,9 @@ function renderStatsGeneric(gs,tnf){
   const tA=gs.reduce((s,g)=>s+g.a,0),tB=gs.reduce((s,g)=>s+g.b,0),tot=tA+tB||1;
   const wA=gs.filter(g=>g.winner==="a").length,wB=gs.filter(g=>g.winner==="b").length;
   const mA=gs.length?Math.max(...gs.map(g=>g.a)):0,mB=gs.length?Math.max(...gs.map(g=>g.b)):0;
-  return`<div class="stat-section-title">?꾩껜 ?듦퀎</div>
+  return`<div class="stat-section-title">전체 통계</div>
   <div class="stat-team-row"><span class="stat-team-a">${esc(tnf("a",1))} / ${esc(tnf("a",2))}</span><span class="stat-team-b">${esc(tnf("b",1))} / ${esc(tnf("b",2))}</span></div>
-  ${sb("?명듃 ?밸━",wA,wB,wA+wB)}${sb("珥??앹젏",tA,tB,tA+tB)}${sb("?앹젏瑜?(%)",Math.round(tA/tot*100),Math.round(tB/tot*100),100)}${sb("理쒓퀬 ?명듃 ?먯닔",mA,mB,Math.max(mA,mB)||1)}`;
+  ${sb("세트 승리",wA,wB,wA+wB)}${sb("총 득점",tA,tB,tA+tB)}${sb("득점률 (%)",Math.round(tA/tot*100),Math.round(tB/tot*100),100)}${sb("최고 세트 점수",mA,mB,Math.max(mA,mB)||1)}`;
 }
 
 function sb(label,a,b,tot){
@@ -728,13 +739,13 @@ function sb(label,a,b,tot){
   return`<div class="stat-block"><div class="stat-values"><span class="val-a">${a}</span><span class="stat-label">${label}</span><span class="val-b">${b}</span></div><div class="stat-bars"><div class="bar-track"><div class="bar-a" style="width:${wa}%"></div></div><div class="bar-track"><div class="bar-b" style="width:${wb}%"></div></div></div></div>`;
 }
 
-/* FIX 1: Breakdown ???명듃蹂??낅┰ ?뱀뀡?쇰줈 遺꾨━ */
+/* FIX 1: Breakdown — 세트별 독립 섹션으로 분리 */
 function renderBreakdownGeneric(gs,tnf){
-  if(!gs.length)return`<p style="color:var(--text-dim);text-align:center;padding:20px 0">湲곕줉 ?놁쓬</p>`;
+  if(!gs.length)return`<p style="color:var(--text-dim);text-align:center;padding:20px 0">기록 없음</p>`;
   return gs.map((g,gi)=>{
     let sA=0,sB=0;
     const winColor=g.winner==="a"?"score-a":"score-b";
-    /* 媛??명듃 ?ъ씤????꾨씪?????명듃蹂꾨줈 ?낅┰ 釉붾줉 */
+    /* 각 세트 포인트 타임라인 — 세트별로 독립 블록 */
     const rows=(g.pointLog||[]).map((p,idx)=>{
       if(p.team==="a")sA++;else sB++;
       const scorer=tnf(p.team,p.prevServerNum);
@@ -751,10 +762,10 @@ function renderBreakdownGeneric(gs,tnf){
     return`<div class="bd-set-section">
       <div class="bd-set-header">
         <span class="bd-set-title">SET ${gi+1}</span>
-        <span class="bd-set-score ${winColor}">${g.a} : ${g.b} &nbsp;<span style="font-size:10px;font-weight:700;opacity:0.8">${g.winner==="a"?"? A ??:"? B ??}</span></span>
+        <span class="bd-set-score ${winColor}">${g.a} : ${g.b} &nbsp;<span style="font-size:10px;font-weight:700;opacity:0.8">${g.winner==="a"?"팀 A 승":"팀 B 승"}</span></span>
       </div>
       <div class="bd-timeline">
-        ${rows.length>0?rows.join(""):`<div class="bd-empty">?ъ씤??湲곕줉 ?놁쓬</div>`}
+        ${rows.length>0?rows.join(""):`<div class="bd-empty">포인트 기록 없음</div>`}
       </div>
     </div>`;
   }).join("");
@@ -765,11 +776,11 @@ function renderHistoryModal(){
   if(_historyDetail)return renderHistoryDetailModal(_historyDetail);
   let body;
   if(!_db){
-    body=`<p class="hist-empty">DB???곌껐?섏뼱 ?덉? ?딆뒿?덈떎.<br>?ㅽ봽?쇱씤 ?곹깭?먯꽌??湲곕줉??遺덈윭?????놁뒿?덈떎.</p>`;
+    body=`<p class="hist-empty">DB에 연결되어 있지 않습니다.<br>오프라인 상태에서는 기록을 불러올 수 없습니다.</p>`;
   }else if(_historyLoading){
-    body=`<p class="hist-empty">遺덈윭?ㅻ뒗 以?..</p>`;
+    body=`<p class="hist-empty">불러오는 중...</p>`;
   }else if(!(_historyMatches&&_historyMatches.length)){
-    body=`<p class="hist-empty">??λ맂 寃쎄린 湲곕줉???놁뒿?덈떎.<br>寃쎄린瑜??앷퉴吏 留덉튂硫??먮룞?쇰줈 ??λ뤌??</p>`;
+    body=`<p class="hist-empty">저장된 경기 기록이 없습니다.<br>경기를 끝까지 마치면 자동으로 저장돼요.</p>`;
   }else{
     body=_historyMatches.map(m=>{
       const p=m.players||{};
@@ -779,22 +790,22 @@ function renderHistoryModal(){
       return`<div class="hist-item" data-hid="${m.id}">
         <div class="hist-item-main">
           <div class="hist-item-teams">
-            <span class="${wa?"hist-winner":""}">${esc(p.a1||"?A-1")}/${esc(p.a2||"?A-2")}</span>
+            <span class="${wa?"hist-winner":""}">${esc(p.a1||"팀A-1")}/${esc(p.a2||"팀A-2")}</span>
             <span class="hist-vs">vs</span>
-            <span class="${!wa?"hist-winner":""}">${esc(p.b1||"?B-1")}/${esc(p.b2||"?B-2")}</span>
+            <span class="${!wa?"hist-winner":""}">${esc(p.b1||"팀B-1")}/${esc(p.b2||"팀B-2")}</span>
           </div>
           <div class="hist-item-score">${m.gamesA??0} : ${m.gamesB??0}</div>
         </div>
-        <div class="hist-item-sub">${dateStr||"?좎쭨 ?뺣낫 ?놁쓬"}</div>
-        <button class="hist-del-btn" data-hdel="${m.id}">??/button>
+        <div class="hist-item-sub">${dateStr||"날짜 정보 없음"}</div>
+        <button class="hist-del-btn" data-hdel="${m.id}">✕</button>
       </div>`;
     }).join("");
   }
   return`<div class="match-modal-overlay" id="hmo">
     <div class="match-modal">
-      <div class="match-banner" style="padding:18px 48px 14px;"><div class="match-winner-name" style="font-size:16px;">?뾺截?寃쎄린 湲곕줉</div><button class="match-close-x" id="hist-close-x">??/button></div>
+      <div class="match-banner" style="padding:18px 48px 14px;"><div class="match-winner-name" style="font-size:16px;">🗂️ 경기 기록</div><button class="match-close-x" id="hist-close-x">✕</button></div>
       <div class="match-body">${body}</div>
-      <div class="match-footer"><button class="btn-secondary" id="btn-close-history">?リ린</button></div>
+      <div class="match-footer"><button class="btn-secondary" id="btn-close-history">닫기</button></div>
     </div>
   </div>`;
 }
@@ -810,24 +821,24 @@ function renderHistoryDetailModal(rec){
   let body=_histModalTab==="details"?renderDetailsGeneric(gs,tnf):_histModalTab==="stats"?renderStatsGeneric(gs,tnf):renderBreakdownGeneric(gs,tnf);
   return`<div class="match-modal-overlay" id="hdmo">
     <div class="match-modal">
-      <div class="match-banner"><div class="match-trophy">?룇</div><div class="match-winner-name"><span class="${wc}">${wt}</span> ?곗듅!</div><div class="match-winner-sub">?명듃 ?ㅼ퐫??${gA} : ${gB}</div><button class="match-close-x" id="hd-close-x">??/button></div>
+      <div class="match-banner"><div class="match-trophy">🏆</div><div class="match-winner-name"><span class="${wc}">${wt}</span> 우승!</div><div class="match-winner-sub">세트 스코어 ${gA} : ${gB}</div><button class="match-close-x" id="hd-close-x">✕</button></div>
       <div class="match-tabs"><button class="match-tab${_histModalTab==="details"?" active":""}" data-hmt="details">Details</button><button class="match-tab${_histModalTab==="stats"?" active":""}" data-hmt="stats">Stats</button><button class="match-tab${_histModalTab==="breakdown"?" active":""}" data-hmt="breakdown">Breakdown</button></div>
       <div class="match-body">${body}</div>
-      <div class="match-footer"><button class="btn-secondary" id="btn-hist-back">??紐⑸줉?쇰줈</button></div>
+      <div class="match-footer"><button class="btn-secondary" id="btn-share-hist">📤 경기결과 공유</button><button class="btn-secondary" id="btn-hist-back">← 목록으로</button></div>
     </div>
   </div>`;
 }
 
 /* CONFIRM / PICKER */
-function renderConfirmReset(){return`<div class="modal-overlay" id="mob"><div class="confirm-sheet"><p>紐⑤뱺 湲곕줉??珥덇린?붾맗?덈떎.</p><div class="row"><button class="danger" id="cy">珥덇린??/button><button class="cancel" id="cc">痍⑥냼</button></div></div></div>`;}
+function renderConfirmReset(){return`<div class="modal-overlay" id="mob"><div class="confirm-sheet"><p>모든 기록이 초기화됩니다.</p><div class="row"><button class="danger" id="cy">초기화</button><button class="cancel" id="cc">취소</button></div></div></div>`;}
 function renderPickerSheet(field){
   const r=state.roster;
-  const lbs={a1:"? A 쨌 ?좎닔 1",a2:"? A 쨌 ?좎닔 2",b1:"? B 쨌 ?좎닔 1",b2:"? B 쨌 ?좎닔 2"};
+  const lbs={a1:"팀 A · 선수 1",a2:"팀 A · 선수 2",b1:"팀 B · 선수 1",b2:"팀 B · 선수 2"};
   return`<div class="modal-overlay" id="mob"><div class="modal-card"><div class="picker-sheet-inner">
-    <div class="picker-title">${lbs[field]||"?좎닔 ?좏깮"}</div>
-    <div class="roster-add-row"><input id="rai" placeholder="???좎닔 異붽?"><button id="rab">異붽?</button></div>
-    <div class="roster-list">${r.length===0?`<div class="roster-empty">紐낅떒??鍮꾩뼱?덉뒿?덈떎</div>`:r.map(n=>`<div class="roster-item"><button class="roster-name-btn roster-pick-btn" data-field="${field}" data-name="${esc(n)}">${esc(n)}</button><button class="roster-del-btn" data-name="${esc(n)}">??/button></div>`).join("")}</div>
-    <button class="picker-cancel" id="pcb">痍⑥냼</button>
+    <div class="picker-title">${lbs[field]||"선수 선택"}</div>
+    <div class="roster-add-row"><input id="rai" placeholder="새 선수 추가"><button id="rab">추가</button></div>
+    <div class="roster-list">${r.length===0?`<div class="roster-empty">명단이 비어있습니다</div>`:r.map(n=>`<div class="roster-item"><button class="roster-name-btn roster-pick-btn" data-field="${field}" data-name="${esc(n)}">${esc(n)}</button><button class="roster-del-btn" data-name="${esc(n)}">✕</button></div>`).join("")}</div>
+    <button class="picker-cancel" id="pcb">취소</button>
   </div></div></div>`;
 }
 
@@ -851,27 +862,35 @@ function bindEvents(){
   qA("[data-hmt]").forEach(tab=>tab.addEventListener("click",()=>{_histModalTab=tab.dataset.hmt;render();}));
   qA("[data-hid]").forEach(el=>el.addEventListener("click",e=>{if(e.target.closest("[data-hdel]"))return;const id=el.dataset.hid;const m=(_historyMatches||[]).find(x=>x.id===id);if(m){_historyDetail=m;_histModalTab="details";render();}}));
   qA("[data-hdel]").forEach(btn=>btn.addEventListener("click",e=>{e.stopPropagation();deleteHistoryItem(btn.dataset.hdel);}));
-  on("#btn-score-a","click",()=>scorePoint("a"));
-  on("#btn-score-b","click",()=>scorePoint("b"));
+  on("#btn-score-a","click",()=>{if(!state.current){_drawerOpen=true;render();return;}scorePoint("a");});
+  on("#btn-score-b","click",()=>{if(!state.current){_drawerOpen=true;render();return;}scorePoint("b");});
   on("#btn-undo","click",undoPoint);
 
-  /* FIX 2: ?ㅼ쓬 ?명듃 踰꾪듉 ??canStartNextSet() ??true ???뚮쭔 ?뚮뜑??*/
+  /* FIX 2: 다음 세트 버튼 — canStartNextSet() 이 true 일 때만 렌더됨 */
   on("#btn-nset","click",()=>{
     if(!canStartNextSet())return;
-    openServePick(true);
+    const last=state.gamesArr[state.gamesArr.length-1];
+    const ns=last?last.winner==="a"?"b":"a":"a";
+    state.current=newGame(ns,_nextServerNum||1);
+    _nextServerNum=1;
+    save();render();
   });
+  qA("[data-nsp]").forEach(btn=>btn.addEventListener("click",()=>{_nextServerNum=parseInt(btn.dataset.nsp);render();}));
 
-  /* Name edit ??score table */
+  /* Name edit — score table */
   qA("[data-ef]").forEach(btn=>btn.addEventListener("click",e=>{e.stopPropagation();openNameEdit(btn.dataset.ef);}));
-  /* Name edit ??court quad */
+  /* Name edit — court quad */
   qA("[data-qet]").forEach(btn=>btn.addEventListener("click",e=>{e.stopPropagation();const t=btn.dataset.qet,n=parseInt(btn.dataset.qen);openNameEdit(t+(n===1?"1":"2"));}));
 
   /* Swap */
-  on("[data-swap='teams']","click",()=>{if(state.current)state.current.teamSideSwapped=!state.current.teamSideSwapped;render();});
-  on("[data-swap='left']","click",()=>{const _sw=state.current&&state.current.teamSideSwapped;const _cg=state.current&&state.current.games?state.current.games[state.current.currentGame]:null;const _eg=_cg||ensurePre();if(!_eg)return;if(_sw){const t=_eg.posB.right;_eg.posB.right=_eg.posB.left;_eg.posB.left=t;}else{const t=_eg.posA.right;_eg.posA.right=_eg.posA.left;_eg.posA.left=t;}save();render();});
-  on("[data-swap='right']","click",()=>{const _sw=state.current&&state.current.teamSideSwapped;const _cg=state.current&&state.current.games?state.current.games[state.current.currentGame]:null;const _eg=_cg||ensurePre();if(!_eg)return;if(_sw){const t=_eg.posA.right;_eg.posA.right=_eg.posA.left;_eg.posA.left=t;}else{const t=_eg.posB.right;_eg.posB.right=_eg.posB.left;_eg.posB.left=t;}save();render();});
 
-  
+  /* Position controls bar (always-visible 3 buttons) */
+  qA("[data-pos]").forEach(btn=>btn.addEventListener("click",()=>{
+    const p=btn.dataset.pos;
+    if(p==="teams"){if(state.current){state.current.teamSideSwapped=!state.current.teamSideSwapped;save();}render();}
+    else if(p==="a"){const cg=ensurePre();if(cg){const t=cg.posA.right;cg.posA.right=cg.posA.left;cg.posA.left=t;save();}render();}
+    else if(p==="b"){const cg=ensurePre();if(cg){const t=cg.posB.right;cg.posB.right=cg.posB.left;cg.posB.left=t;save();}render();}
+  }));
 
   /* Drawer */
   on("#btn-dc","click",()=>{_drawerOpen=false;render();});
@@ -881,11 +900,13 @@ function bindEvents(){
   qA("[data-sct]").forEach(el=>el.addEventListener("click",()=>{state.startingServerChoice={team:el.dataset.sct,num:parseInt(el.dataset.scn)};render();}));
   qA("[data-step]").forEach(btn=>btn.addEventListener("click",()=>{const d=parseInt(btn.dataset.dir);if(btn.dataset.step==="ptw")state.pointsToWin=Math.max(7,Math.min(21,state.pointsToWin+d));render();}));
   qA("[data-wb]").forEach(btn=>btn.addEventListener("click",()=>{state.winBy=parseInt(btn.dataset.wb);render();}));
-  on("#btn-start","click",()=>openServePick(false));
+  on("#btn-start","click",startGame);
 
   /* Match modal */
   on("#match-close-x","click",closeMatchModal);
   on("#btn-close-match","click",closeMatchModal);
+  on("#btn-share-match","click",shareCurrentMatch);
+  on("#btn-share-hist","click",()=>shareHistoryMatch(_historyDetail));
   on("#btn-new-series","click",()=>{const{players,roster,pointsToWin,winBy}=state;state=freshState();Object.assign(state,{players,roster,pointsToWin,winBy});_modal=null;_matchSaved=false;save();render();});
   qA("[data-mt]").forEach(tab=>tab.addEventListener("click",()=>{_matchModalTab=tab.dataset.mt;render();}));
 
@@ -902,69 +923,6 @@ function bindEvents(){
 }
 
 function ensurePre(){if(!state.current){const sc=state.startingServerChoice;state.current=newGame(sc.team,sc.num);}return state.current;}
-
-/* ?? 泥??쒕툕 ?좎닔 ?좏깮 ?앹뾽 ?? */
-function openServePick(fromNset){
-  _servePick={fromNset:!!fromNset};
-  renderServePick();
-}
-function renderServePick(){
-  if(!_servePick)return;
-  const p=state.players;
-  const sc=state.startingServerChoice;
-  const servers=[
-    {team:"a",num:1,label:p.a1||"?좎닔 1"},
-    {team:"a",num:2,label:p.a2||"?좎닔 2"},
-    {team:"b",num:1,label:p.b1||"?좎닔 3"},
-    {team:"b",num:2,label:p.b2||"?좎닔 4"}
-  ];
-  let overlay=document.getElementById("serve-pick-overlay");
-  if(!overlay){
-    overlay=document.createElement("div");
-    overlay.id="serve-pick-overlay";
-    document.body.appendChild(overlay);
-  }
-  overlay.className="serve-pick-overlay";
-  const setNum=state.gamesArr.length+1;
-  overlay.innerHTML=`
-    <div class="serve-pick-card">
-      <div class="serve-pick-title">?룗 ${setNum}?명듃 泥??쒕툕 ?좎닔</div>
-      <div class="serve-pick-sub">?쒕툕瑜??쒖옉???좎닔瑜??좏깮?섏꽭??/div>
-      <div class="serve-pick-grid">
-        ${servers.map(s=>`
-          <button class="serve-pick-btn${sc.team===s.team&&sc.num===s.num?" active":""}"
-            data-sct="${s.team}" data-scn="${s.num}">
-            <span class="sp-team">? ${s.team.toUpperCase()}</span>
-            <span class="sp-name">${esc(s.label)}</span>
-          </button>`).join("")}
-      </div>
-      <button class="serve-pick-confirm" id="serve-pick-ok">???명듃 ?쒖옉</button>
-    </div>`;
-  overlay.querySelectorAll("[data-sct]").forEach(btn=>{
-    btn.addEventListener("click",()=>{
-      state.startingServerChoice={team:btn.dataset.sct,num:parseInt(btn.dataset.scn)};
-      save();
-      renderServePick();
-    });
-  });
-  document.getElementById("serve-pick-ok").addEventListener("click",()=>{
-    closeServePick();
-    if(_servePick&&_servePick.fromNset){
-      if(!canStartNextSet())return;
-      const sc2=state.startingServerChoice;
-      state.current=newGame(sc2.team,sc2.num);
-      save();render();
-    } else {
-      startGame();
-    }
-    _servePick=null;
-  });
-}
-function closeServePick(){
-  const el=document.getElementById("serve-pick-overlay");
-  if(el)el.remove();
-}
-
 function closeModal(){_modal=null;render();}
 function closeMatchModal(){_modal=null;render();}
 function startGame(){const sc=state.startingServerChoice;state.current=newGame(sc.team,sc.num);state.gamesArr=[];_setupErr="";_drawerOpen=false;_matchSaved=false;save();render();}
