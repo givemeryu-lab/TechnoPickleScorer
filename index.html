@@ -2,8 +2,18 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
+<script>
+/* 카카오톡 인앱 브라우저 회피 — 외부 기본 브라우저로 강제 이동 */
+(function(){
+  var ua=(navigator.userAgent||"").toLowerCase();
+  if(ua.indexOf("kakaotalk")>-1){
+    var target=location.href;
+    location.href="kakaotalk://web/openExternal?url="+encodeURIComponent(target);
+  }
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>테크노 피클볼 트래커</title>
+<title>트래커</title>
 <style>
 :root{--bg:#0b0d10;--panel:#15181c;--panel-raised:#1c2025;--line:#262b31;--court:#0d2b33;--court-line:#5fd0e8;--blue:#3b9eff;--blue-dim:#1f4a73;--text:#eef1f4;--text-dim:#8b9299;--text-faint:#5a6068;--gold:#e8b339;--win:#37c977;}
 *{box-sizing:border-box;}
@@ -595,7 +605,7 @@ function renderApp(){
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
     <div class="titles">
-      <h1><img class="app-logo" src="https://github.com/givemeryu-lab/TechnoPicklers/blob/main/2026-05-13_001.png?raw=true" alt="로고"> 테크노<span style="font-size:13px;color:var(--text-dim);font-weight:500">세트 ${curSet||1} / ${ST}</span></h1>
+      <h1><img class="app-logo" src="https://github.com/givemeryu-lab/TechnoPicklers/blob/main/2026-05-13_001.png?raw=true" alt="로고">테크노<span style="font-size:13px;color:var(--text-dim);font-weight:500">세트 ${curSet||1} / ${ST}</span></h1>
       <div class="subtitle">팀 A ${gA} : ${gB} 팀 B &nbsp;·&nbsp; ${state.pointsToWin}점 ${state.winBy===2?"2점차":""}</div>
     </div>
     <div class="header-actions">
@@ -644,7 +654,7 @@ function renderDrawer(){
   ov.className="settings-overlay"+(_drawerOpen?" open":"");
   dr.innerHTML=`<div class="drawer-header"><h2>⚙️ 경기 설정</h2><button class="drawer-close" id="btn-dc">✕</button></div>
   <div class="drawer-body">
-    <button class="history-menu-btn" id="btn-history-menu">🗂️ 저장된 경기 기록 보기 (DB)</button>
+    <button class="drawer-start-btn" id="btn-start">▶ 경기 새로 시작</button>
     <div class="team-block team-a"><div class="team-label"><span class="dot"></span>팀 A</div>
       <div class="player-input"><div class="pos-tag">1</div><input id="pa1" placeholder="선수 1" value="${esc(p.a1)}" data-field="a1"><button class="picker-btn" data-pick="a1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div>
       <div class="player-input"><div class="pos-tag">2</div><input id="pa2" placeholder="선수 2" value="${esc(p.a2)}" data-field="a2"><button class="picker-btn" data-pick="a2"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></button></div>
@@ -660,7 +670,7 @@ function renderDrawer(){
     <div class="game-settings-row"><div class="gs-label"><div class="t">승리 조건</div><div class="d">점수 차이</div></div><div class="win-by-toggle"><button class="${state.winBy===2?"active":""}" data-wb="2">2점 차</button><button class="${state.winBy===1?"active":""}" data-wb="1">점수만</button></div></div>
     <div class="game-settings-row" style="opacity:0.5;pointer-events:none;"><div class="gs-label"><div class="t">시리즈</div><div class="d">고정</div></div><div class="stepper"><span class="val" style="font-size:13px">3전 2선승</span></div></div>
     <div class="error-msg">${_setupErr}</div>
-    <button class="drawer-start-btn" id="btn-start">▶ 경기 새로 시작</button>
+    <button class="history-menu-btn" id="btn-history-menu">🗂️ 저장된 경기 기록 보기 (DB)</button>
   </div>`;
 }
 
@@ -690,7 +700,7 @@ function buildMatchShareText(gs,tnf,winnerTeam){
   const teamB=`${tnf("b",1)} / ${tnf("b",2)}`;
   const gA=gs.filter(g=>g.winner==="a").length,gB=gs.filter(g=>g.winner==="b").length;
   const winnerNames=winnerTeam==="a"?teamA:teamB;
-  const lines=[`🏓 경기 결과`,`${teamA}  vs  ${teamB}`,``,`🏆 ${winnerNames} 승 (${gA} : ${gB})`,``];
+  const lines=[`🏓 피클볼 경기 결과`,`${teamA}  vs  ${teamB}`,``,`🏆 ${winnerNames} 승 (${gA} : ${gB})`,``];
   gs.forEach((g,i)=>{lines.push(`세트 ${i+1}: ${g.a} - ${g.b}  (${g.winner==="a"?teamA:teamB} 승)`);});
   const tA=gs.reduce((s,g)=>s+g.a,0),tB=gs.reduce((s,g)=>s+g.b,0),tot=tA+tB||1;
   const mA=gs.length?Math.max(...gs.map(g=>g.a)):0,mB=gs.length?Math.max(...gs.map(g=>g.b)):0;
@@ -703,7 +713,7 @@ function buildMatchShareText(gs,tnf,winnerTeam){
 }
 async function shareMatchText(text){
   if(navigator.share){
-    try{await navigator.share({title:"경기 결과",text});return;}catch(e){if(e&&e.name==="AbortError")return;}
+    try{await navigator.share({title:"피클볼 경기 결과",text});return;}catch(e){if(e&&e.name==="AbortError")return;}
   }
   if(navigator.clipboard&&navigator.clipboard.writeText){
     try{await navigator.clipboard.writeText(text);alert("경기 결과가 클립보드에 복사되었습니다.");return;}catch(e){}
