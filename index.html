@@ -13,23 +13,35 @@
 })();
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta property="og:title" content="테크노 스코어" />
-<meta property="og:description" content="테크노 피클볼 경기 스코어 트래커" />
-<meta property="og:image" content="https://raw.githubusercontent.com/givemeryu-lab/TechnoPicklers/main/2026-05-13_001.png" />
+<meta property="og:title" content="피클볼 트래커" />
+<meta property="og:description" content="피클볼 경기 스코어 트래커" />
+<meta property="og:image" content="https://github.com/givemeryu-lab/TechnoPicklers/blob/main/2026-05-13_001.png" />
 <meta property="og:type" content="website" />
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-  
 <title>피클볼 트래커</title>
 <style>
+/* ============================================================================
+   STYLE SHEET 개요
+   ----------------------------------------------------------------------------
+   전체를 크게 아래 순서로 구성:
+   1) :root 변수 & 전역 리셋
+   2) 헤더 (로고/타이틀/아이콘 버튼들)
+   3) 설정 드로어(사이드 슬라이드 패널) — 팀/선수/서버/게임 설정
+   4) 게임 화면(점수판, 세트 진행칩, 코트 다이어그램, 탭존, 하단 컨트롤바)
+   5) 점수 토스트 팝업
+   6) 선수 이름 수정 바텀시트
+   7) 공용 모달(확인창/피커시트) & Match Detail(경기 결과) 모달
+   8) Match Detail 내부 3개 탭(상세/통계/타임라인) 각각의 스타일
+   9) 경기 기록(히스토리) 목록
+   10) 화면 우측 하단 상태 배지(화면 켜짐 유지 / 동기화 상태)
+   ============================================================================ */
+/* ── 색상/전역 변수 ── 다크 테마 팔레트를 CSS 커스텀 프로퍼티로 정의 */
 :root{--bg:#0b0d10;--panel:#15181c;--panel-raised:#1c2025;--line:#262b31;--court:#0d2b33;--court-line:#5fd0e8;--blue:#3b9eff;--blue-dim:#1f4a73;--text:#eef1f4;--text-dim:#8b9299;--text-faint:#5a6068;--gold:#e8b339;--win:#37c977;}
+/* 전역 리셋: 박스사이징, 배경/폰트, 탭 하이라이트 제거, 텍스트 선택 방지(앱처럼 보이도록) */
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:'Inter','Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;-webkit-tap-highlight-color:transparent;overscroll-behavior:none;user-select:none;height:100%;}
-#app{max-width:480px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;position:relative;}
+#app{max-width:480px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;position:relative;} /* 모바일 폭 기준 중앙 정렬 컨테이너 */
 
-.header{display:flex;align-items:center;gap:10px;padding:14px 16px 12px;border-bottom:1px solid var(--line);flex:none;}
+/* ── 1. 헤더 (☰ 메뉴, 로고/타이틀, 🔊/🏆/🕘/↺ 아이콘) ── */
 .header .icon-btn{background:none;border:none;color:var(--text-dim);width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:9px;flex:none;cursor:pointer;}
 .header .icon-btn:active{background:var(--panel-raised);}
 .icon-btn.voice-on{color:var(--blue)!important;background:var(--blue-dim)!important;}
@@ -39,6 +51,8 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 .header .subtitle{font-size:12.5px;color:var(--text-dim);margin-top:1px;}
 .header-actions{display:flex;gap:4px;}
 
+/* ── 2. 설정 드로어 — ☰ 아이콘으로 여는 좌측 슬라이드 패널 ── */
+/* 반투명 배경 오버레이: .open 클래스가 붙으면 fade-in되며 클릭 시 드로어를 닫는다 */
 .settings-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:300;opacity:0;pointer-events:none;transition:opacity 0.25s;}
 .settings-overlay.open{opacity:1;pointer-events:all;}
 .settings-drawer{position:fixed;top:0;left:0;bottom:0;width:min(340px,88vw);background:var(--panel);z-index:301;transform:translateX(-100%);transition:transform 0.28s cubic-bezier(0.32,0,0.12,1);display:flex;flex-direction:column;overflow:hidden;box-shadow:4px 0 32px rgba(0,0,0,0.5);}
@@ -49,6 +63,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 .drawer-close:active{background:var(--panel-raised);}
 .drawer-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px 32px;display:flex;flex-direction:column;gap:14px;}
 
+/* ── 2-1. 팀 A/B 선수 이름 입력 카드 ── */
 .team-block{background:var(--panel-raised);border:1px solid var(--line);border-radius:14px;padding:14px 14px 12px;}
 .team-block.team-a{border-top:3px solid var(--blue);}
 .team-block.team-b{border-top:3px solid var(--gold);}
@@ -65,6 +80,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 .player-input .picker-btn{width:34px;height:34px;border-radius:8px;flex:none;background:var(--panel);border:1px solid var(--line);color:var(--text-dim);display:flex;align-items:center;justify-content:center;cursor:pointer;}
 .player-input .picker-btn:active{background:var(--blue-dim);color:#fff;border-color:var(--blue);}
 
+/* ── 2-2. "첫 서브 선수" 4명(A1/B1/A2/B2) 선택 그리드 ── */
 .server-select-block{background:var(--panel-raised);border:1px solid var(--line);border-radius:14px;padding:14px 14px 12px;}
 .server-select-label{color:var(--text-dim);}
 .server-select-label .dot{background:var(--text-dim);}
@@ -73,6 +89,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 .server-choice .sc-name{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .server-choice.active{background:var(--blue-dim);border-color:var(--blue);color:#fff;}
 
+/* ── 2-3. 게임 설정 행 공통 스타일 (목표 점수 스테퍼, 승리 조건/시리즈 토글) ── */
 .game-settings-row{background:var(--panel-raised);border:1px solid var(--line);border-radius:14px;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
 .gs-label{display:flex;flex-direction:column;gap:2px;}
 .gs-label .t{font-size:13.5px;font-weight:600;}
@@ -88,6 +105,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 .drawer-start-btn{width:100%;padding:14px;border:none;border-radius:12px;background:var(--blue);color:#fff;font-size:15px;font-weight:700;cursor:pointer;}
 .drawer-start-btn:active{background:#2f86dd;}
 
+/* ── 3. 게임 화면 — 점수판 ── */
 .game-screen{flex:1;display:flex;flex-direction:column;overflow:hidden;}
 .score-table{padding:14px 16px 8px;}
 .score-row{display:grid;grid-template-columns:1fr auto;align-items:center;padding:10px 0;gap:10px;}
@@ -107,17 +125,19 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 .game-scores .gs.won{color:var(--win);}
 .serve-indicator-row{text-align:center;font-size:12px;color:var(--text-faint);padding:1px 0 3px;}
 
+/* ── 3-1. 세트 진행 칩 (세트 1: 11-7, 세트 2 ▶, ...) ── */
 .set-progress{display:flex;align-items:center;justify-content:center;gap:6px;padding:0 16px 8px;}
 .set-chip{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:4px 10px;font-size:11.5px;font-weight:700;color:var(--text-dim);}
 .set-chip.set-a{border-color:var(--blue-dim);color:var(--blue);}
 .set-chip.set-b{border-color:#6b5200;color:var(--gold);}
 .set-chip.set-current{color:var(--text-faint);}
 
+/* ── 3-2. 코트 다이어그램 (4분면 + 중앙 점선/코트라인 + 서브 표시) ── */
 .court-wrap{margin:0 16px 12px;border-radius:14px;overflow:hidden;border:1px solid var(--line);}
 .court{display:grid;grid-template-columns:1fr 1fr;background:var(--court);position:relative;aspect-ratio:4/3;}
-.court::before{content:'';position:absolute;left:50%;top:8%;bottom:8%;width:0;border-left:2px dashed rgba(95,208,232,0.35);}
-.court::after{content:'';position:absolute;left:8%;right:8%;top:50%;height:0;border-top:2px solid rgba(95,208,232,0.55);}
-.score-call-value{background:var(--panel);border:1.5px solid var(--blue);border-radius:7px;padding:2px 8px;font-size:13px;font-weight:800;color:var(--blue);font-variant-numeric:tabular-nums;white-space:nowrap;box-shadow:0 3px 8px rgba(0,0,0,0.3);margin-bottom:3px;}
+.court::before{content:'';position:absolute;left:50%;top:8%;bottom:8%;width:0;border-left:2px dashed rgba(95,208,232,0.35);} /* 세로 중앙 킷첸/네트 점선 */
+.court::after{content:'';position:absolute;left:8%;right:8%;top:50%;height:0;border-top:2px solid rgba(95,208,232,0.55);} /* 가로 중앙선 (좌/우 코트 구분) */
+.score-call-value{background:var(--panel);border:1.5px solid var(--blue);border-radius:7px;padding:2px 8px;font-size:13px;font-weight:800;color:var(--blue);font-variant-numeric:tabular-nums;white-space:nowrap;box-shadow:0 3px 8px rgba(0,0,0,0.3);margin-bottom:3px;} /* 서브 중인 선수 위에 뜨는 "5-3-2" 점수콜 배지 */
 .sc-sep{color:var(--text-faint);margin:0 3px;font-weight:400;}
 .court-side{display:grid;grid-template-rows:1fr 1fr;position:relative;}
 .court-quad{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 10px;position:relative;font-size:19px;font-weight:700;color:var(--text-dim);text-align:center;}
@@ -131,6 +151,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 .side-right .court-quad.qtr-bottom .serve-balls{left:8px;bottom:8px;top:auto;}
 .ball-icon{width:13px;height:13px;color:var(--court-line);}
 .court-quad.serving-now{background:radial-gradient(circle at center,rgba(95,208,232,0.16),transparent 70%);outline:2px solid var(--court-line);outline-offset:-2px;border-radius:9px;}
+/* ── 3-3. 코트 중앙에 겹쳐지는 3개의 위치 교체 버튼 (⇄A / ⇆팀 / ⇄B) ── */
 .swap-controls{position:absolute;left:0;right:0;top:50%;display:flex;align-items:center;justify-content:center;gap:12px;transform:translateY(-50%);z-index:5;}
 .swap-btn{width:34px;height:34px;border-radius:50%;background:var(--panel);border:1.5px solid var(--court-line);color:var(--court-line);display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;box-shadow:0 2px 8px rgba(0,0,0,0.4);}
 .swap-btn:active{background:var(--blue-dim);}
@@ -141,13 +162,14 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 .swap-btn-b{border-color:var(--gold);color:var(--gold);}
 .swap-btn-b:active{background:#352800;color:var(--gold);}
 
+/* ── 3-4. 탭존 — 팀 A/B 득점(또는 사이드아웃) 입력용 큰 원형 버튼 두 개 ── */
 .tap-zones{flex:1;display:flex;align-items:center;justify-content:center;gap:16px;margin:0 16px;padding:4px 0;min-height:140px;}
 .tap-zone{flex:1;max-width:190px;aspect-ratio:1;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;border:none;cursor:pointer;gap:4px;box-shadow:0 8px 22px rgba(0,0,0,0.4);}
 .tap-zone.zone-a{background:radial-gradient(circle at 32% 28%,#7fc4ff,var(--blue) 65%);color:#fff;}
 .tap-zone.zone-b{background:radial-gradient(circle at 32% 28%,#ffe08a,var(--gold) 65%);color:#241a05;}
 .tap-zone:active{filter:brightness(1.1);transform:scale(0.97);}
-.tap-zone:disabled{filter:grayscale(0.5) brightness(0.7);}
-.tap-zone.tap-zone-inactive{filter:grayscale(0.5) brightness(0.7);}
+.tap-zone:disabled{filter:grayscale(0.5) brightness(0.7);} /* 레거시 대비용 — 실제로는 disabled 속성을 안 쓰고 아래 클래스를 사용 */
+.tap-zone.tap-zone-inactive{filter:grayscale(0.5) brightness(0.7);} /* 경기 시작 전: 탭은 되지만(설정 열림) 시각적으로는 비활성처럼 보이게 */
 .tap-zone .zlabel{font-size:12px;letter-spacing:1px;text-transform:uppercase;font-weight:700;}
 .tap-zone.zone-a .zlabel{color:rgba(255,255,255,0.88);}
 .tap-zone.zone-b .zlabel{color:rgba(36,26,5,0.75);}
@@ -171,22 +193,27 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
   50%{box-shadow:0 4px 26px rgba(59,158,255,0.65);}
 }
 
+/* ── 3-5. 세트 종료 후 "다음 세트 첫 서브 선수" 선택 그리드 ── */
 .next-serve-pick{width:100%;max-width:340px;}
 .nsp-label{font-size:11px;font-weight:700;letter-spacing:0.3px;text-transform:uppercase;color:var(--text-dim);text-align:center;margin-bottom:8px;}
 .nsp-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
 .nsp-btn{background:var(--panel);border:1.5px solid var(--line);border-radius:10px;padding:11px 8px;color:var(--text);font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .nsp-btn:active{filter:brightness(1.08);}
 
+/* ── 3-6. 하단 컨트롤바 (↩ 되돌리기 버튼) ── */
 .controls-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 16px calc(12px + env(safe-area-inset-bottom));}
 .ctrl-btn{display:flex;align-items:center;gap:6px;background:var(--panel);border:1px solid var(--line);color:var(--text-dim);padding:9px 13px;border-radius:10px;font-size:12.5px;font-weight:600;cursor:pointer;}
 .ctrl-btn:active{background:var(--panel-raised);}
 .ctrl-btn svg{width:14px;height:14px;}
 
-.score-toast{position:fixed;top:68px;left:50%;transform:translateX(-50%);background:var(--blue-dim);border:1.5px solid var(--blue);border-radius:12px;padding:7px 18px;font-size:19px;font-weight:800;color:var(--blue);letter-spacing:2px;white-space:nowrap;box-shadow:0 6px 20px rgba(0,0,0,0.5);z-index:300;pointer-events:none;animation:toastIn 0.18s ease,toastOut 0.3s ease 1.5s forwards;}
+/* ── 4. 점수 토스트 팝업 (예: "1-1-2") — showScoreToast()가 JS로 생성/제거 ── */
+.score-toast{position:fixed;top:68px;left:50%;transform:translateX(-50%);background:var(--blue-dim);border:1.5px solid var(--blue);border-radius:12px;padding:7px 18px;font-size:19px;font-weight:800;color:var(--blue);letter-spacing:2px;white-space:nowrap;box-shadow:0 6px 20px rgba(0,0,0,0.5);z-index:300;pointer-events:none;animation:toastIn 0.18s ease,toastOut 0.3s ease 1.7s forwards;}
+/* toastOut이 1.7s 지연 후 0.3s에 걸쳐 서서히 사라지도록 해서(총 2.0s),
+   JS의 setTimeout(2000ms) DOM 제거 시점과 시각적으로 맞아떨어지게 한다. */
 @keyframes toastIn{from{opacity:0;transform:translateX(-50%) scale(0.85);}to{opacity:1;transform:translateX(-50%) scale(1);}}
 @keyframes toastOut{from{opacity:1;}to{opacity:0;transform:translateX(-50%) scale(0.9);}}
 
-/* Name Edit Sheet */
+/* ── 5. 선수 이름 수정 바텀시트 (renderNameEdit()이 그림) ── */
 .name-edit-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.65);display:flex;align-items:flex-end;justify-content:center;z-index:600;}
 .name-edit-sheet{background:var(--panel);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:24px 20px calc(28px + env(safe-area-inset-bottom));border-top:1px solid var(--line);}
 .ne-title{font-size:12px;font-weight:700;color:var(--text-dim);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
@@ -213,6 +240,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 .ne-cancel-btn{background:var(--panel-raised);color:var(--text-dim);}
 .ne-cancel-btn:active{background:var(--line);}
 
+/* ── 6. 공용 모달 — 초기화 확인창 & 선수 명단 선택 시트 ── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.62);display:flex;align-items:flex-end;justify-content:center;z-index:400;}
 .modal-card{background:var(--panel);border-radius:22px 22px 0 0;width:100%;max-width:480px;border-top:1px solid var(--line);max-height:92dvh;display:flex;flex-direction:column;overflow:hidden;}
 .confirm-sheet{background:var(--panel-raised);border-radius:18px 18px 0 0;padding:20px 18px calc(20px + env(safe-area-inset-bottom));max-width:480px;width:100%;}
@@ -239,7 +267,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 .roster-del-btn:active{background:#5a2020;color:#ff9b9b;}
 .picker-cancel{width:100%;padding:12px;border-radius:11px;border:none;font-size:14px;font-weight:700;cursor:pointer;background:var(--panel-raised);color:var(--text-dim);margin-top:6px;}
 
-/* ══ MATCH DETAIL MODAL ══ */
+/* ══ 7. MATCH DETAIL 모달 — 시리즈 종료 결과 화면 & 히스토리 상세 화면(같은 스타일 공유) ══ */
 .match-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.72);display:flex;align-items:flex-end;justify-content:center;z-index:500;}
 .match-modal{background:var(--panel);border-radius:24px 24px 0 0;width:100%;max-width:480px;max-height:94dvh;display:flex;flex-direction:column;overflow:hidden;border-top:1px solid var(--line);}
 .match-banner{text-align:center;padding:22px 48px 16px;border-bottom:1px solid var(--line);flex:none;position:relative;}
@@ -259,7 +287,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 .btn-secondary{background:var(--panel-raised);color:var(--text-dim);}
 .btn-secondary:active{background:var(--line);}
 
-/* ── Details tab ── */
+/* ── 7-1. 상세(Details) 탭 — renderDetailsGeneric()이 그리는 세트별 카드 ── */
 .set-card{background:var(--panel-raised);border:1px solid var(--line);border-radius:14px;margin-bottom:12px;overflow:hidden;}
 .set-card-header{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--line);background:var(--panel);}
 .set-card-label{font-size:11px;font-weight:800;color:var(--text-faint);letter-spacing:0.5px;text-transform:uppercase;}
@@ -273,7 +301,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 .set-score-num.winner{color:var(--win);}
 .set-score-num.loser{color:var(--text-faint);}
 
-/* ── Stats tab ── */
+/* ── 7-2. 통계(Stats) 탭 — renderStatsGeneric()/sb()가 그리는 항목별 막대그래프 ── */
 .stat-block{margin-bottom:18px;}
 .stat-values{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px;gap:8px;}
 .stat-values .val-a,.stat-values .val-b{font-size:19px;font-weight:800;color:var(--text);}
@@ -287,7 +315,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 .stat-team-a{font-size:12.5px;font-weight:700;color:var(--blue);}
 .stat-team-b{font-size:12.5px;font-weight:700;color:var(--gold);}
 
-/* ── Breakdown tab: 세트별 섹션 ── */
+/* ── 7-3. 타임라인(Breakdown) 탭 — renderBreakdownGeneric()이 그리는 랠리별 득점 흐름 ── */
 .bd-set-section{margin-bottom:22px;}
 .bd-set-section:last-child{margin-bottom:4px;}
 .bd-set-header{
@@ -310,6 +338,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 .bd-score-snap{font-size:11px;color:var(--text-faint);font-variant-numeric:tabular-nums;}
 .bd-empty{font-size:12.5px;color:var(--text-faint);text-align:center;padding:10px 0;}
 
+/* ── 8. 경기 기록(히스토리) 목록 화면 — renderHistoryModal() ── */
 .history-menu-btn{width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--panel-raised);color:var(--text);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;}
 .history-menu-btn:active{background:var(--blue-dim);}
 .hist-empty{color:var(--text-dim);text-align:center;padding:32px 0;font-size:13.5px;}
@@ -324,6 +353,7 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 .hist-del-btn{position:absolute;top:10px;right:10px;width:22px;height:22px;border-radius:6px;border:none;background:none;color:var(--text-faint);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 .hist-del-btn:active{background:rgba(255,90,90,0.15);color:#ff8080;}
 
+/* ── 9. 화면 우측 하단 상태 배지 (🔆 화면 켜짐 유지 / ✓ 동기화 상태) ── */
 .status-badges{position:fixed;bottom:14px;right:14px;z-index:200;display:flex;flex-direction:column;align-items:flex-end;gap:6px;pointer-events:none;}
 .wakelock-badge{font-size:11px;font-weight:700;padding:5px 10px;border-radius:20px;pointer-events:none;background:#1a2a1a;color:#37c977;opacity:0.75;}
 .wakelock-badge.off{background:#2a2010;color:#e8b339;opacity:0.6;}
@@ -352,46 +382,125 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 <script>
 (function(){
 "use strict";
+/* ============================================================================
+   피클볼 트래커 (Pickleball Score Tracker) — 메인 애플리케이션 스크립트
+   ============================================================================
+   구조 개요:
+   - 순수 바닐라 JS. 프레임워크 없이 전체 DOM을 문자열 템플릿으로 매번 다시
+     그리는(re-render) 방식이다 (가상 DOM 없음 → render() 호출 시 innerHTML 전체 교체).
+   - 상태(state)는 단일 전역 객체 하나로 관리되며, Firebase Firestore에
+     실시간 동기화된다 (여러 기기에서 같은 경기를 함께 볼 수 있도록).
+   - 큰 흐름: 상태 변경 함수(scorePoint, undoPoint, startGame 등) 실행
+     → save() 로 Firestore에 저장 → render() 로 화면 갱신 → bindEvents() 로
+     새로 그려진 DOM에 이벤트 리스너 재바인딩.
+   - 득점 규칙은 정식 피클볼 사이드아웃(Side-out) 스코어링을 따른다:
+     서브권을 가진 팀만 득점할 수 있고, 리시브팀이 랠리를 이기면 점수 변화
+     없이 서브권만 이동한다 (사이드 아웃).
+   ============================================================================ */
 
-/* WAKE LOCK */
-let _wakeLock=null;
+
+
+/* ============================================================================
+   화면 켜짐 유지 (Screen Wake Lock)
+   ----------------------------------------------------------------------------
+   경기 중 화면이 자동으로 꺼지지 않도록 브라우저의 Wake Lock API를 사용한다.
+   - 지원하지 않는 브라우저(구형 Safari 등)에서는 조용히 무시된다.
+   - 탭을 벗어났다가 돌아오면(visibilitychange) Wake Lock이 자동 해제되므로
+     다시 요청해야 한다.
+   ============================================================================ */
+let _wakeLock=null; // 현재 활성화된 WakeLockSentinel 객체 (없으면 null)
+/** 화면 꺼짐 방지를 요청한다. 성공/실패 여부에 따라 하단 배지 UI를 갱신한다. */
 async function requestWakeLock(){if(!("wakeLock" in navigator))return;try{_wakeLock=await navigator.wakeLock.request("screen");updWake(true);_wakeLock.addEventListener("release",()=>{_wakeLock=null;updWake(false);});}catch(e){updWake(false);}}
+/** 화면 우측 하단 "화면 켜짐 유지" 배지의 텍스트/스타일을 갱신한다. */
 function updWake(on){const b=document.getElementById("wakelock-badge");if(!b)return;b.textContent=on?"🔆 화면 켜짐 유지":"🔆 절전 방지 OFF";b.className="wakelock-badge"+(on?"":" off");}
+// 탭이 다시 보이게 될 때(예: 앱 전환 후 복귀) Wake Lock을 재요청한다.
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"&&!_wakeLock)requestWakeLock();});
-requestWakeLock();
+requestWakeLock(); // 페이지 로드 시 최초 1회 요청
 
-/* VOICE */
+/* ============================================================================
+   음성 안내 (Text-to-Speech) & 점수 토스트
+   ----------------------------------------------------------------------------
+   득점/사이드아웃이 발생할 때마다 "서브팀 점수 - 리시브팀 점수 - 서버번호"를
+   영어 숫자 단어로 음성 안내하고, 동시에 화면 상단에 숫자로 된 토스트 팝업을
+   2초간 띄운다.
+   ============================================================================ */
+// 0~21까지의 숫자를 영어 단어로 매핑 (SpeechSynthesis가 자연스럽게 읽도록)
 const NW=["zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen","twenty","twenty one"];
-let _voiceEnabled=true,_voices=[];
+let _voiceEnabled=true,_voices=[]; // 음성 안내 on/off 상태, 사용 가능한 SpeechSynthesisVoice 목록
+/** 브라우저가 제공하는 음성 목록을 불러와 _voices에 캐싱한다. (비동기로 늦게 채워질 수 있음) */
 function loadVoices(){_voices=window.speechSynthesis?speechSynthesis.getVoices():[];}
 if(window.speechSynthesis){loadVoices();speechSynthesis.addEventListener("voiceschanged",loadVoices);}
+/** 선호하는 영어 음성을 우선순위대로 찾아 반환한다 (없으면 en-US → en → 아무 음성 순). */
 function pickVoice(){const p=["Samantha","Google US English","Alex","Karen"];for(const n of p){const f=_voices.find(v=>v.name===n);if(f)return f;}return _voices.find(v=>v.lang.startsWith("en-US"))||_voices.find(v=>v.lang.startsWith("en"))||_voices[0]||null;}
+/** ss-rs-sn (서브팀점수-리시브팀점수-서버번호)를 영어 숫자 단어로 음성 안내한다. */
 function speakScore(ss,rs,sn){if(!_voiceEnabled||!window.speechSynthesis)return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance((NW[ss]||ss)+"... "+(NW[rs]||rs)+"... "+(NW[sn]||sn));u.lang="en-US";u.rate=0.88;u.pitch=1.05;u.volume=1.0;const v=pickVoice();if(v)u.voice=v;if(speechSynthesis.paused)speechSynthesis.resume();speechSynthesis.speak(u);}
-let _toastTimer=null;
+let _toastTimer=null; // 현재 대기 중인 토스트 제거용 setTimeout 핸들 (새 토스트가 뜨면 즉시 clear)
+/**
+ * 화면 상단에 "ss-rs-sn" 형식의 점수 토스트를 2초간 표시한다.
+ * 이미 표시 중인 토스트가 있으면 즉시 제거하고, 대기 중이던 제거 타이머도
+ * clearTimeout 하여 레이스 컨디션(새 토스트가 이전 타이머에 의해 조기 삭제되는 문제)을 방지한다.
+ */
 function showScoreToast(ss,rs,sn){
   const old=document.getElementById("score-toast");if(old)old.remove();
   if(_toastTimer){clearTimeout(_toastTimer);_toastTimer=null;}
   const t=document.createElement("div");t.id="score-toast";t.className="score-toast";t.textContent=`${ss}-${rs}-${sn}`;document.body.appendChild(t);
   _toastTimer=setTimeout(()=>{const el=document.getElementById("score-toast");if(el)el.remove();_toastTimer=null;},2000);
 }
+/**
+ * 득점/사이드아웃 발생 직후 호출되는 알림 함수.
+ * 서버 번호(dispNum)는 세트 시작 직후 첫 사이드아웃 전까지는 규칙상 항상 "2"로
+ * 표시해야 하므로(g.firstServeOfGame===true) 실제 g.serverNum 대신 2를 사용한다.
+ */
 function announceScore(g){if(!g)return;const ss=g.server==="a"?g.a:g.b,rs=g.server==="a"?g.b:g.a;const dispNum=g.firstServeOfGame?2:g.serverNum;showScoreToast(ss,rs,dispNum);speakScore(ss,rs,dispNum);}
 
-/* FIREBASE */
-const DEVICE_ID_KEY="pb_device_id_v1";
-let state=null,_db=null,_unsubscribe=null;
-const FC={apiKey:"AIzaSyA4GAT7ZK1ZKHArzx7kFSUp1MoLFeSGcQ0",authDomain:"dpad-dfc64.firebaseapp.com",projectId:"dpad-dfc64",storageBucket:"dpad-dfc64.firebasestorage.app",messagingSenderId:"1041083998516",appId:"1:1041083998516:web:9a4efea76381edefeac561"};
+/* ============================================================================
+   FIREBASE 연동 — 실시간 저장 & 기기 간 동기화
+   ----------------------------------------------------------------------------
+   - 이 앱은 로그인 없이, 브라우저에 저장된 임의의 "기기 ID(DEVICE_ID)"를 문서
+     키로 사용해 Firestore의 sessions/{DEVICE_ID} 문서에 현재 상태 전체를
+     JSON 문자열로 저장한다.
+   - onSnapshot 구독을 통해 다른 탭/기기에서 저장한 변경사항이 실시간으로
+     반영된다 (같은 기기 ID를 공유하는 경우, 예: 같은 브라우저의 다른 탭).
+   - 완료된 시리즈(매치) 결과는 별도로 matches 컬렉션에 영구 보관된다
+     (아래 "MATCH HISTORY" 섹션 참고).
+   ============================================================================ */
+const DEVICE_ID_KEY="pb_device_id_v1"; // localStorage에 기기 ID를 저장할 키 이름
+let state=null,_db=null,_unsubscribe=null; // state: 앱 전역 상태 / _db: Firestore 인스턴스 / _unsubscribe: 실시간 구독 해제 함수
+const FC={apiKey:"AIzaSyA4GAT7ZK1ZKHArzx7kFSUp1MoLFeSGcQ0",authDomain:"dpad-dfc64.firebaseapp.com",projectId:"dpad-dfc64",storageBucket:"dpad-dfc64.firebasestorage.app",messagingSenderId:"1041083998516",appId:"1:1041083998516:web:9a4efea76381edefeac561"}; // Firebase 프로젝트 설정
+/** Firebase 앱을 초기화하고 Firestore 인스턴스를 준비한다. 실패 시(네트워크 차단 등) false 반환. */
 function initFirebase(){try{if(!firebase.apps.length)firebase.initializeApp(FC);_db=firebase.firestore();return true;}catch(e){return false;}}
+/** localStorage에서 이 브라우저의 고유 기기 ID를 읽어오거나, 없으면 새로 생성해 저장한다. */
 function getDeviceId(){let id=localStorage.getItem(DEVICE_ID_KEY);if(!id){id="dev_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,8);localStorage.setItem(DEVICE_ID_KEY,id);}return id;}
 const DEVICE_ID=getDeviceId();
+/** 우측 하단 "동기화 상태" 배지를 갱신한다. s: "init"|"syncing"|"ok"|"offline" */
 function setSyncStatus(s){const b=document.getElementById("sync-badge");if(!b)return;const map={init:{icon:"⏳",text:"연결 중",cls:"sync-init"},syncing:{icon:"↑",text:"저장 중",cls:"sync-syncing"},ok:{icon:"✓",text:"동기화됨",cls:"sync-ok"},offline:{icon:"⚡",text:"오프라인",cls:"sync-offline"}};const m=map[s]||map.ok;b.className="sync-badge "+m.cls;b.textContent=m.icon+" "+m.text;}
+/** 현재 state 전체를 JSON 문자열로 직렬화해 Firestore(sessions/{DEVICE_ID})에 저장한다. */
 function save(){if(!_db){setSyncStatus("offline");return;}setSyncStatus("syncing");_db.collection("sessions").doc(DEVICE_ID).set({data:JSON.stringify(state),updatedAt:firebase.firestore.FieldValue.serverTimestamp()}).then(()=>setSyncStatus("ok")).catch(()=>setSyncStatus("offline"));}
+/** 앱 최초 로드 시, 이 기기 ID로 저장된 이전 상태가 있으면 불러온다 (없으면 null). */
 async function loadFromFirestore(){if(!_db)return null;try{const d=await _db.collection("sessions").doc(DEVICE_ID).get();if(d.exists&&d.data().data)return JSON.parse(d.data().data);}catch(e){}return null;}
+/**
+ * sessions/{DEVICE_ID} 문서를 실시간 구독한다.
+ * hasPendingWrites(자신이 방금 쓴 로컬 변경)는 무시하여 자기 자신의 저장으로
+ * 인한 불필요한 재렌더링/루프를 막고, 다른 탭/기기가 쓴 변경만 반영한다.
+ */
 function subscribeRealtime(){if(!_db)return;if(_unsubscribe)_unsubscribe();_unsubscribe=_db.collection("sessions").doc(DEVICE_ID).onSnapshot({includeMetadataChanges:false},(doc)=>{if(!doc.exists||!doc.data()?.data||doc.metadata.hasPendingWrites)return;try{const r=JSON.parse(doc.data().data);Object.assign(state,r);render();setSyncStatus("ok");}catch(e){}},()=>setSyncStatus("offline"));}
+/** 앱 진입점: Firebase 초기화 → 저장된 상태 복원(또는 새 상태 생성) → 최초 렌더 → 실시간 구독 시작. */
 async function bootstrap(){setSyncStatus("init");const fbOk=initFirebase();if(fbOk){const remote=await loadFromFirestore();state=remote||freshState();ensureState();setSyncStatus("ok");subscribeRealtime();}else{state=freshState();}render();}
 
-/* MATCH HISTORY (DB) — 완료된 경기(시리즈)를 별도 컬렉션에 영구 저장 */
-let _matchSaved=false;
-let _nextServerNum=1;
+/* ============================================================================
+   경기 기록 히스토리 (DB) — 완료된 시리즈(매치)를 별도 컬렉션에 영구 저장
+   ----------------------------------------------------------------------------
+   sessions/{DEVICE_ID}는 "현재 진행 중인 경기 상태"만 담는 임시 저장소인 반면,
+   matches 컬렉션은 시리즈가 끝날 때마다 별도 문서로 추가(add)되는 영구 기록
+   보관소다. 나중에 "저장된 경기 기록 보기" 화면에서 목록/상세를 조회한다.
+   ============================================================================ */
+let _matchSaved=false;   // 현재 시리즈 결과를 이미 matches 컬렉션에 저장했는지 여부 (중복 저장 방지)
+let _nextServerNum=1;    // "다음 세트" 시작 시 선택된 첫 서브 선수 번호(1 또는 2)
+/**
+ * 방금 종료된 시리즈(현재 state.gamesArr 전체)를 matches 컬렉션에 새 문서로 추가한다.
+ * pointLog는 undo에 필요한 court/포지션 정보는 제외하고, 화면 표시(누가 득점했는지,
+ * 실제 득점인지 사이드아웃인지)에 필요한 최소 필드만 남겨 저장 용량을 줄인다.
+ */
 async function saveMatchRecord(){
   if(!_db)return;
   try{
@@ -400,6 +509,7 @@ async function saveMatchRecord(){
       players:{...state.players},
       pointsToWin:state.pointsToWin,
       winBy:state.winBy,
+      seriesTarget:state.seriesTarget,
       winner:checkSeriesWin(),
       gamesA:gamesWon("a"),
       gamesB:gamesWon("b"),
@@ -411,7 +521,13 @@ async function saveMatchRecord(){
 }
 
 let _historyMatches=null,_historyLoading=false,_historyDetail=null,_histModalTab="details";
+// _historyMatches: 불러온 과거 경기 목록 캐시 / _historyLoading: 로딩 스피너 표시 여부
+// _historyDetail: 목록에서 선택되어 상세보기 중인 경기 레코드 (null이면 목록 화면)
+// _histModalTab: 히스토리 상세 화면의 활성 탭("details"|"stats"|"breakdown")
+
+/** 경기 기록 모달을 연다 (목록 화면부터 시작) 및 실제 데이터는 비동기로 불러온다. */
 function openHistory(){_historyDetail=null;_histModalTab="details";_modal=()=>renderHistoryModal();render();loadHistory();}
+/** matches 컬렉션에서 최근 50건을 최신순으로 가져와 _historyMatches에 캐싱한다. */
 async function loadHistory(){
   if(!_db){_historyMatches=[];render();return;}
   _historyLoading=true;render();
@@ -422,73 +538,188 @@ async function loadHistory(){
   _historyLoading=false;
   if(_modal)render();
 }
+/** 경기 기록 모달을 닫는다. */
 function closeHistory(){_modal=null;_historyDetail=null;render();}
+/** 사용자 확인(confirm) 후 지정한 경기 기록 문서를 Firestore에서 삭제하고 로컬 캐시에서도 제거한다. */
 async function deleteHistoryItem(id){
   if(!confirm("이 경기 기록을 삭제할까요?"))return;
   try{await _db.collection("matches").doc(id).delete();}catch(e){}
   _historyMatches=(_historyMatches||[]).filter(m=>m.id!==id);
   render();
 }
+/**
+ * 히스토리 레코드(rec.players)를 기반으로 tn()과 동일한 시그니처의 이름 조회 함수를 생성한다.
+ * 현재 진행 중인 경기는 state.players를 참조하는 tn()을 쓰지만, 과거 기록은
+ * DB에 저장된 rec.players를 참조해야 하므로 별도의 팩토리 함수로 분리되어 있다.
+ */
 function tnFrom(rec){const p=rec.players||{};return(team,num)=>{if(team==="a")return num===1?(p.a1||"Team A-1"):(p.a2||"Team A-2");return num===1?(p.b1||"Team B-1"):(p.b2||"Team B-2");};}
-function ensureState(){if(!Array.isArray(state.roster))state.roster=[];if(!state.startingServerChoice)state.startingServerChoice={team:"a",num:1};if(!state.current&&state.screen==="game")state.current=newGame("a");state.seriesTarget=3;}
-bootstrap();
+/**
+ * 앱 로드 직후 상태 객체의 누락된 필드를 보정한다 (구버전 저장 데이터와의 하위 호환용).
+ * - roster 배열이 없으면 빈 배열로
+ * - 첫 서브 선수 선택값이 없으면 기본값(A팀 1번)으로
+ * - 화면이 game인데 진행 중인 게임이 없으면 새 게임 생성
+ * - seriesTarget이 유효한 값(1/3/5)이 아니면 기본값 3(2선승)으로
+ */
+function ensureState(){if(!Array.isArray(state.roster))state.roster=[];if(!state.startingServerChoice)state.startingServerChoice={team:"a",num:1};if(!state.current&&state.screen==="game")state.current=newGame("a");if(![1,3,5].includes(state.seriesTarget))state.seriesTarget=3;}
+bootstrap(); // 앱 실행 시작점
 
-/* GAME LOGIC */
-const ST=3;
+/* ============================================================================
+   GAME LOGIC — 데이터 모델 & 핵심 규칙 함수
+   ----------------------------------------------------------------------------
+   state 객체 구조:
+   {
+     screen: "game",                 // 현재 화면 (항상 "game" — 별도 라우팅 없음)
+     players: {a1,a2,b1,b2},          // 4명의 선수 이름
+     winBy: 2|1,                      // 승리 조건: 2점차 승 또는 점수만 도달하면 승
+     pointsToWin: number,             // 한 세트 목표 점수 (기본 11)
+     seriesTarget: 1|3|5,             // 시리즈 총 세트 수 (1선승/2선승/3선승 → 1/3/5전)
+     gamesArr: [game, ...],           // 종료된 세트(게임) 목록
+     current: game|null,              // 진행 중인 세트 (없으면 null)
+     roster: [string, ...],           // 최근 사용한 선수 이름 목록 (자동완성용)
+     startingServerChoice: {team,num} // 세팅 화면에서 고른 "첫 세트 첫 서브 선수"
+   }
+
+   game(=세트) 객체 구조 (newGame() 참고):
+   {
+     a, b: number,                    // 팀 A/B 현재 점수
+     server: "a"|"b",                 // 현재 서브권을 가진 팀
+     serverNum: 1|2,                  // 그 팀에서 몇 번째 선수가 서브 중인지
+     firstServeOfGame: boolean,       // 이 세트의 "0-0-2 예외" 구간이 아직 끝나지 않았는지
+     posA, posB: {right,left},        // 각 팀 선수가 코트 좌/우 어디 서있는지 (선수 번호)
+     teamSideSwapped: boolean,        // 코트 상에서 A/B 팀이 좌우로 뒤바뀌어 표시되는지
+     startingServer: "a"|"b",         // 이 세트를 시작한 팀 (기록용)
+     pointLog: [{team,prevA,prevB,prevServer,prevServerNum,prevPosA,prevPosB,prevFirst,scored}, ...]
+                                       // 되돌리기(undo)를 위한 랠리별 스냅샷 이력.
+                                       // scored=true면 실제 득점, false면 사이드아웃(점수 변화 없음)
+   }
+   ============================================================================ */
+
+/** 시리즈 우승팀을 판정한다. 목표 승수(세트 절반을 올림)에 먼저 도달한 팀을 반환, 아직이면 null. */
+function checkSeriesWin(){const h=Math.ceil(state.seriesTarget/2);if(gamesWon("a")>=h)return"a";if(gamesWon("b")>=h)return"b";return null;}
+/** team("a"|"b")과 num(1|2)으로 해당 선수의 표시 이름을 조회한다. 이름 미입력 시 기본 라벨 사용. */
 function tn(team,num){const p=state.players;if(team==="a")return num===1?(p.a1||"Team A-1"):(p.a2||"Team A-2");return num===1?(p.b1||"Team B-1"):(p.b2||"Team B-2");}
-function freshState(){return{screen:"game",players:{a1:"",a2:"",b1:"",b2:""},winBy:2,pointsToWin:11,gamesArr:[],current:null,seriesTarget:ST,roster:[],startingServerChoice:{team:"a",num:1}};}
+/** 앱 최초 실행 시 또는 완전 초기화 시 사용할 기본 상태 객체를 생성한다. */
+function freshState(){return{screen:"game",players:{a1:"",a2:"",b1:"",b2:""},winBy:2,pointsToWin:11,gamesArr:[],current:null,seriesTarget:3,roster:[],startingServerChoice:{team:"a",num:1}};}
+/**
+ * 새 세트(게임) 객체를 생성한다.
+ * sv: 이 세트를 시작하는(첫 서브를 넣는) 팀 ("a"|"b")
+ * sp: 그 팀에서 몇 번째 선수가 첫 서브를 넣는지 (1|2, 기본 1)
+ * 코트 포지션(posA/posB)은 항상 {right:1,left:2}로 초기화된다 — 즉 각 팀의 1번
+ * 선수가 오른쪽(짝수 코트)에서 시작한다는 가정. firstServeOfGame=true로 시작해
+ * "0-0-2" 예외 규칙이 적용되도록 한다.
+ */
 function newGame(sv,sp){return{a:0,b:0,server:sv,serverNum:sp||1,firstServeOfGame:true,posA:{right:1,left:2},posB:{right:1,left:2},teamSideSwapped:false,startingServer:sv,pointLog:[]};}
+/** 지금까지 종료된 세트 중 해당 팀이 이긴 세트 수를 센다. */
 function gamesWon(t){return state.gamesArr.filter(g=>g.winner===t).length;}
+/** 현재 세트가 종료 조건(목표 점수 도달 + 승리 조건 충족)을 만족하는지 검사해 승리 팀을 반환한다 (없으면 null). */
 function checkGameWin(g){const ptw=state.pointsToWin,wb=state.winBy;if(g.a>=ptw&&(wb===1||g.a-g.b>=wb))return"a";if(g.b>=ptw&&(wb===1||g.b-g.a>=wb))return"b";return null;}
-function checkSeriesWin(){const h=Math.ceil(ST/2);if(gamesWon("a")>=h)return"a";if(gamesWon("b")>=h)return"b";return null;}
+/** 시리즈 전체가 종료되었는지(우승팀이 확정되고, 진행 중인 세트도 없는지) 판단한다. */
 function isMatchOver(){return checkSeriesWin()!==null&&!state.current;}
+/** seriesTarget 숫자(1/3/5)를 사람이 읽는 "N전 M선승" 문구로 변환한다. */
+function seriesLabel(t){const map={1:"1전 1선승",3:"3전 2선승",5:"5전 3선승"};return map[t]||`${t}전 ${Math.ceil(t/2)}선승`;}
 
-/* FIX 2: "다음 세트" 버튼 조건
-   - state.current===null : 현재 게임이 없음 (직전 게임이 방금 끝남)
-   - state.gamesArr의 마지막 게임에 winner가 있음 : 한 경기가 정상 종료됨
-   - !isMatchOver() : 아직 시리즈가 끝나지 않음
+/* "다음 세트" 버튼을 보여줄 조건:
+   - state.current===null : 현재 진행 중인 세트가 없음 (직전 세트가 방금 끝남)
+   - state.gamesArr의 마지막 세트에 winner가 있음 : 그 세트가 정상 종료됨
+   - !isMatchOver() : 아직 시리즈 전체가 끝나지 않음 (끝났다면 "다음 세트"가 아니라 결과 화면을 보여줘야 함)
 */
 function canStartNextSet(){
-  if(state.current)return false;          // 경기 중이면 안 됨
-  if(isMatchOver())return false;           // 시리즈 끝나면 안 됨
+  if(state.current)return false;          // 세트 진행 중이면 안 됨
+  if(isMatchOver())return false;           // 시리즈가 이미 끝났으면 안 됨
   const last=state.gamesArr[state.gamesArr.length-1];
-  return !!(last&&last.winner);            // 마지막 경기가 종료된 경우만
+  return !!(last&&last.winner);            // 마지막 세트가 정상 종료된 경우에만 true
 }
 
+/**
+ * 득점/사이드아웃을 처리하는 핵심 함수. team 인자는 "방금 랠리를 이긴 팀"을 의미한다.
+ *
+ * 사이드아웃 스코어링 규칙:
+ *  1) 랠리를 이긴 팀이 현재 서브권을 가진 팀(team===g.server)이면 → 득점(+1)하고,
+ *     그 팀 내에서 서브 위치(오른쪽/왼쪽)를 서로 바꾼다 (다음 서브를 위해).
+ *  2) 랠리를 이긴 팀이 서브권이 없는(리시빙) 팀이면 → 점수는 그대로 두고 서브권만 이동시킨다.
+ *     - 세트 시작 직후의 "0-0-2 예외" 구간(firstServeOfGame===true)이라면, 이번이
+ *       이 세트의 첫 사이드아웃이므로 곧바로 상대팀의 1번 서버에게 서브권이 넘어간다.
+ *     - 그 외의 일반적인 경우는, 같은 팀 내에서 1번 서버 → 2번 서버로 넘어가거나
+ *       (이미 2번 서버였다면) 상대팀의 1번 서버로 서브권이 완전히 넘어간다.
+ *
+ * 매 랠리마다 pointLog에 "이전 상태" 스냅샷을 남겨 undoPoint()에서 정확히 되돌릴 수 있게 한다.
+ */
 function scorePoint(team){
   const g=state.current;if(!g)return;
-  const isServerWin=(team===g.server);
+  const isServerWin=(team===g.server); // 서브팀이 이겼는지(득점) vs 리시브팀이 이겼는지(사이드아웃)
+  // 되돌리기를 위해 이번 랠리 이전의 모든 관련 상태를 스냅샷으로 저장
   const log={team,prevA:g.a,prevB:g.b,prevServer:g.server,prevServerNum:g.serverNum,prevPosA:{...g.posA},prevPosB:{...g.posB},prevFirst:g.firstServeOfGame,scored:isServerWin};
   if(isServerWin){
+    // 서브팀 득점: 점수 +1, 그리고 다음 서브를 위해 그 팀의 좌우 포지션을 교체한다
+    // (피클볼 규칙상 서버는 득점할 때마다 자신의 코트 좌/우를 번갈아 이동한다)
     if(team==="a"){g.a++;const t=g.posA.right;g.posA.right=g.posA.left;g.posA.left=t;}else{g.b++;const t=g.posB.right;g.posB.right=g.posB.left;g.posB.left=t;}
   } else {
     /* 서브권 없는 팀이 랠리를 이기면 사이드 아웃(서브권만 이동), 득점은 없음 */
-    if(g.firstServeOfGame){g.firstServeOfGame=false;g.server=team;g.serverNum=1;}
+    if(g.firstServeOfGame){
+      // 이 세트의 첫 사이드아웃: "0-0-2 예외" 구간이 끝나고, 상대팀의 1번 서버부터 정상적으로 시작
+      g.firstServeOfGame=false;g.server=team;g.serverNum=1;
+    }
     else{
+      // 통상적인 사이드아웃: 같은 팀의 2번째 서버로 넘어가거나, 이미 2번째였다면 상대팀으로 완전히 이동
       if(g.server==="a"){if(g.serverNum===1)g.serverNum=2;else{g.server="b";g.serverNum=1;}}
       else{if(g.serverNum===1)g.serverNum=2;else{g.server="a";g.serverNum=1;}}
     }
   }
   g.pointLog.push(log);
-  const w=checkGameWin(g);
-  if(!w){announceScore(g);}
-  else{if(_voiceEnabled&&window.speechSynthesis){speechSynthesis.cancel();const wn=w==="a"?(state.players.a1||"Team A"):(state.players.b1||"Team B");const u=new SpeechSynthesisUtterance("Game! "+wn+" wins!");u.lang="en-US";u.rate=0.9;u.pitch=1.1;const v=pickVoice();if(v)u.voice=v;speechSynthesis.speak(u);}g.winner=w;state.gamesArr.push(g);state.current=null;_nextServerNum=1;}
-  save();
-  if(isMatchOver()){if(!_matchSaved){_matchSaved=true;saveMatchRecord();}_matchModalTab="details";_modal=()=>renderMatchModal();render();}else{render();}
+  const w=checkGameWin(g); // 이번 랠리로 세트가 끝났는지 확인
+  if(!w){
+    announceScore(g); // 세트가 안 끝났으면 평소처럼 점수 토스트/음성 안내
+  }
+  else{
+    // 세트 종료: 음성으로 "Game! ~ wins!" 안내 후, 이 게임을 gamesArr에 확정 이관
+    if(_voiceEnabled&&window.speechSynthesis){speechSynthesis.cancel();const wn=w==="a"?`${state.players.a1||"Team A"} and ${state.players.a2||"Team A-2"}`:`${state.players.b1||"Team B"} and ${state.players.b2||"Team B-2"}`;const u=new SpeechSynthesisUtterance("Game! "+wn+" win!");u.lang="en-US";u.rate=0.9;u.pitch=1.1;const v=pickVoice();if(v)u.voice=v;speechSynthesis.speak(u);}
+    g.winner=w;state.gamesArr.push(g);state.current=null;_nextServerNum=1; // 다음 세트 서버 선택값 초기화
+  }
+  save(); // 매 랠리마다 Firestore에 저장 (실시간 동기화)
+  if(isMatchOver()){
+    // 시리즈 전체가 종료됨: 결과를 한 번만 DB에 영구 저장하고 Match Detail 모달을 연다
+    if(!_matchSaved){_matchSaved=true;saveMatchRecord();}
+    _matchModalTab="details";_modal=()=>renderMatchModal();render();
+  }else{
+    render();
+  }
 }
 
+/**
+ * 방금 입력한 득점/사이드아웃 한 건을 취소한다.
+ * - 진행 중인 세트가 있으면 그 세트의 pointLog에서 마지막 항목을 꺼내(pop) 이전 상태로 복원한다.
+ * - 진행 중인 세트가 없는데(방금 세트가 막 끝난 직후) gamesArr에 완료된 세트가 있으면,
+ *   그 세트를 gamesArr에서 다시 꺼내(pop) winner를 지우고 마지막 랠리를 취소한 뒤
+ *   다시 state.current로 되돌려 "진행 중" 상태로 복구한다 (세트 종료 자체도 되돌릴 수 있게).
+ */
 function undoPoint(){
   speechSynthesis.cancel();
   const g=state.current;
-  if(g&&g.pointLog.length>0){const last=g.pointLog.pop();g.a=last.prevA;g.b=last.prevB;g.server=last.prevServer;g.serverNum=last.prevServerNum;g.posA={...last.prevPosA};g.posB={...last.prevPosB};g.firstServeOfGame=last.prevFirst;save();render();return;}
-  if(!g&&state.gamesArr.length>0){const prev=state.gamesArr.pop();delete prev.winner;const last=prev.pointLog.pop();if(last){prev.a=last.prevA;prev.b=last.prevB;prev.server=last.prevServer;prev.serverNum=last.prevServerNum;prev.posA={...last.prevPosA};prev.posB={...last.prevPosB};prev.firstServeOfGame=last.prevFirst;}state.current=prev;save();render();}
+  if(g&&g.pointLog.length>0){
+    // Case 1: 세트 진행 중 — 마지막 랠리 스냅샷으로 복원
+    const last=g.pointLog.pop();g.a=last.prevA;g.b=last.prevB;g.server=last.prevServer;g.serverNum=last.prevServerNum;g.posA={...last.prevPosA};g.posB={...last.prevPosB};g.firstServeOfGame=last.prevFirst;save();render();return;
+  }
+  if(!g&&state.gamesArr.length>0){
+    // Case 2: 세트가 막 종료된 직후 — 그 세트를 되살려 마지막 랠리까지 취소
+    const prev=state.gamesArr.pop();delete prev.winner;const last=prev.pointLog.pop();if(last){prev.a=last.prevA;prev.b=last.prevB;prev.server=last.prevServer;prev.serverNum=last.prevServerNum;prev.posA={...last.prevPosA};prev.posB={...last.prevPosB};prev.firstServeOfGame=last.prevFirst;}state.current=prev;save();render();
+  }
 }
 
-/* NAME EDIT */
-let _nameEdit=null;
+/* ============================================================================
+   선수 이름 수정 바텀시트 (Name Edit Sheet)
+   ----------------------------------------------------------------------------
+   점수판의 선수 이름이나 코트 위 선수 이름을 탭하면 뜨는 하단 시트.
+   #name-edit-root 라는 별도 DOM 컨테이너를 사용하며(메인 render()와 독립적으로
+   자체 innerHTML을 관리), 최근 사용 이름 목록(roster)에서 빠르게 선택하거나
+   새 이름을 직접 입력할 수 있다.
+   ============================================================================ */
+let _nameEdit=null; // 현재 수정 중인 필드 정보 {field:"a1"|"a2"|"b1"|"b2"} 또는 null(닫힘)
+/** 이름 수정 시트를 연다. field: 어느 선수 슬롯을 수정할지 ("a1"|"a2"|"b1"|"b2"). */
 function openNameEdit(field){_nameEdit={field};renderNameEdit();}
+/** 이름 수정 시트를 닫는다. */
 function closeNameEdit(){_nameEdit=null;document.getElementById("name-edit-root").innerHTML="";}
 
+/** 이름 수정 시트의 HTML을 그리고, 그 안의 입력창/버튼에 이벤트를 직접 바인딩한다. */
 function renderNameEdit(){
   const root=document.getElementById("name-edit-root");
   if(!_nameEdit){root.innerHTML="";return;}
@@ -516,77 +747,120 @@ function renderNameEdit(){
       </div>
     </div>
   </div>`;
+  // 시트가 열리자마자 입력창에 포커스 + 기존 텍스트 전체 선택 (바로 덮어쓰기 편하게)
   setTimeout(()=>{const i=document.getElementById("ne-inp");if(i){i.focus();i.select();}},80);
-  document.getElementById("ne-bg").addEventListener("click",e=>{if(e.target.id==="ne-bg")closeNameEdit();});
-  document.getElementById("ne-clr").addEventListener("click",()=>{const i=document.getElementById("ne-inp");if(i){i.value="";i.focus();}});
+  document.getElementById("ne-bg").addEventListener("click",e=>{if(e.target.id==="ne-bg")closeNameEdit();}); // 배경 탭 → 닫기
+  document.getElementById("ne-clr").addEventListener("click",()=>{const i=document.getElementById("ne-inp");if(i){i.value="";i.focus();}}); // 입력창 비우기
   document.getElementById("ne-can").addEventListener("click",closeNameEdit);
   document.getElementById("ne-ok").addEventListener("click",()=>{
+    // 저장: 입력값을 해당 선수 슬롯에 반영하고, 로스터(자동완성 목록)에 없으면 추가
     const i=document.getElementById("ne-inp");
     const v=(i?.value||"").trim();
     state.players[f]=v;
     if(v&&!state.roster.includes(v))state.roster.push(v);
     save();closeNameEdit();render();
   });
-  document.getElementById("ne-inp")?.addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("ne-ok")?.click();});
-  root.querySelectorAll(".ne-roster-pick").forEach(b=>b.addEventListener("click",()=>{state.players[f]=b.dataset.n;save();closeNameEdit();render();}));
-  root.querySelectorAll(".ne-roster-del").forEach(b=>b.addEventListener("click",()=>{state.roster=state.roster.filter(n=>n!==b.dataset.d);save();renderNameEdit();}));
+  document.getElementById("ne-inp")?.addEventListener("keydown",e=>{if(e.key==="Enter")document.getElementById("ne-ok")?.click();}); // 엔터 키로 저장
+  root.querySelectorAll(".ne-roster-pick").forEach(b=>b.addEventListener("click",()=>{state.players[f]=b.dataset.n;save();closeNameEdit();render();})); // 로스터에서 이름 선택
+  root.querySelectorAll(".ne-roster-del").forEach(b=>b.addEventListener("click",()=>{state.roster=state.roster.filter(n=>n!==b.dataset.d);save();renderNameEdit();})); // 로스터에서 이름 삭제
 }
 
-/* RENDER */
+/* ============================================================================
+   RENDER — 메인 렌더링 파이프라인
+   ----------------------------------------------------------------------------
+   render()가 매번 호출될 때마다: 메인 화면(renderApp) → 설정 드로어(renderDrawer)
+   → 열려있는 모달(_modal) 순으로 각 컨테이너의 innerHTML을 통째로 새로 그리고,
+   마지막에 bindEvents()로 새로 생긴 DOM 요소들에 클릭 등 이벤트를 다시 건다.
+   (프레임워크 없이 직접 문자열 템플릿 → innerHTML 방식이라 매 렌더마다 전체
+   이벤트 재바인딩이 필요하다.)
+   ============================================================================ */
 let _modal=null,_matchModalTab="details",_setupErr="",_drawerOpen=false,_pickerField=null;
+// _modal: 현재 열려있는 모달을 그리는 함수 (null이면 모달 없음) — renderConfirmReset, renderMatchModal, renderHistoryModal, renderPickerSheet 중 하나가 할당됨
+// _matchModalTab: Match Detail 모달의 활성 탭
+// _setupErr: 설정 드로어에 표시할 에러 메시지 (현재 코드에서는 사용되지 않지만 자리 남겨둠)
+// _drawerOpen: 설정(세팅) 드로어가 열려있는지 여부
+// _pickerField: 선수 이름 "명단에서 선택" 시트를 어느 필드용으로 열었는지
+/** 메인 렌더 진입점. 매 상태 변경 후 반드시 이 함수를 호출해야 화면에 반영된다. */
 function render(){renderApp();renderDrawer();document.getElementById("modal-root").innerHTML=_modal?_modal():"";bindEvents();}
 
+/**
+ * 메인 게임 화면(헤더 + 점수판 + 코트 + 탭존 + 컨트롤바) 전체를 그린다.
+ * #app 컨테이너의 innerHTML을 통째로 교체하는 방식이라, 이 함수는 매번
+ * 처음부터 모든 하위 HTML 조각(courtHtml, tapZoneHtml 등)을 새로 계산한다.
+ */
 function renderApp(){
   const g=state.current,sw=checkSeriesWin(),matchOver=isMatchOver();
   const gA=gamesWon("a"),gB=gamesWon("b");
-  const curSet=state.gamesArr.length+(g?1:0);
+  const curSet=state.gamesArr.length+(g?1:0); // 현재 몇 번째 세트인지 (진행 중이면 +1)
   const serving=g?g.server:"a",sNum=g?g.serverNum:1;
-  const preGame=!g&&!matchOver;
+  const preGame=!g&&!matchOver; // 아직 첫 세트도 시작 안 한 상태 (세트 없음 + 시리즈도 안 끝남)
+  // cg("court game"): 코트 다이어그램을 그리기 위한 데이터.
+  // 진행 중인 게임(g)이 있으면 그걸 쓰고, 없고 preGame이면 프리뷰용 기본값(가짜 객체)을 만든다.
+  // 이 프리뷰 객체는 저장되지 않는 임시 값으로, 세트 시작 전에도 코트/버튼 모양을 미리 보여주기 위함이다.
   const cg=g||(preGame?{posA:{right:1,left:2},posB:{right:1,left:2},server:"a",serverNum:1,a:0,b:0,teamSideSwapped:false,firstServeOfGame:true}:null);
-  const teamSwapped=!!(cg&&cg.teamSideSwapped);
-  const nextSetReady=canStartNextSet();  /* FIX 2 */
+  const teamSwapped=!!(cg&&cg.teamSideSwapped); // 코트에서 A/B 팀 좌우가 뒤바뀌어 있는지 (탭존 순서에도 반영)
+  const nextSetReady=canStartNextSet();  /* 다음 세트 대기 화면을 보여줄지 여부 */
 
+  /** 점수판 상단의 세트별 점수 나열(예: "11 9 7" 처럼 완료된 세트들 + 진행 중 세트)을 생성한다. */
   function renderGS(team){let h="";state.gamesArr.forEach(pg=>{const w=pg.winner===team;h+=`<span class="gs${w?" won":""}">${team==="a"?pg.a:pg.b}</span>`;});if(g)h+=`<span class="gs current">${team==="a"?g.a:g.b}</span>`;return h;}
 
-  function setChips(){let h="";for(let i=0;i<ST;i++){const pg=state.gamesArr[i];if(pg){h+=`<div class="set-chip ${pg.winner==="a"?"set-a":"set-b"}">세트 ${i+1}: ${pg.a}-${pg.b}</div>`;}else if(g&&state.gamesArr.length===i){h+=`<div class="set-chip set-current">세트 ${i+1}: ${g.a}-${g.b} ▶</div>`;}else{h+=`<div class="set-chip" style="opacity:0.35">세트 ${i+1}</div>`;}}return h;}
+  /** 세트 진행 상황 칩(세트 1: 11-7, 세트 2: 9-11 ▶, 세트 3 ...)을 생성한다. seriesTarget 개수만큼 슬롯을 채운다. */
+  function setChips(){let h="";for(let i=0;i<state.seriesTarget;i++){const pg=state.gamesArr[i];if(pg){h+=`<div class="set-chip ${pg.winner==="a"?"set-a":"set-b"}">세트 ${i+1}: ${pg.a}-${pg.b}</div>`;}else if(g&&state.gamesArr.length===i){h+=`<div class="set-chip set-current">세트 ${i+1}: ${g.a}-${g.b} ▶</div>`;}else{h+=`<div class="set-chip" style="opacity:0.35">세트 ${i+1}</div>`;}}return h;}
 
+  // ── 코트 다이어그램 (court diagram) ─────────────────────────────────────
   let courtHtml="";
   if(cg){
+    // sw2: 코트 좌/우 팀 배치가 뒤집혔는지. lt/rt: 실제로 코트 왼쪽/오른쪽에 표시될 팀 문자("a"|"b").
     const sw2=cg.teamSideSwapped,lt=sw2?"b":"a",rt=sw2?"a":"b";
+    /**
+     * 코트 4분면 중 하나(한 명의 선수 칸)를 렌더링한다.
+     * team: "a"|"b", pos: "right"|"left" (그 팀 내부 기준 코트 위치),
+     * isTop/sR: CSS 클래스 결정용 (위/아래 칸인지, 코트 오른쪽 절반인지).
+     */
     function quad(team,pos,isTop,sR){
-      const pnum=(team==="a"?cg.posA:cg.posB)[pos];
+      const pnum=(team==="a"?cg.posA:cg.posB)[pos]; // 이 칸에 서있는 선수 번호(1|2)
       const name=tn(team,pnum);
-      const isSrv=g&&cg.server===team&&cg.serverNum===pnum;
-      const isAct=g&&g.server===team;
+      const isSrv=g&&cg.server===team&&cg.serverNum===pnum; // 지금 이 선수가 서브 중인지
+      const isAct=g&&g.server===team; // 이 팀이 현재 서브팀인지 (칸 강조용)
       return`<div class="court-quad ${isTop?"qtr-top":"qtr-bottom"}${isAct?" active":""}${isSrv?" serving-now":""}${sR?" side-right":""}">
         ${isSrv?`<div class="score-call-value">${cg.server==="a"?cg.a:cg.b}<span class="sc-sep">-</span>${cg.server==="a"?cg.b:cg.a}<span class="sc-sep">-</span>${cg.firstServeOfGame?2:cg.serverNum}</div>`:""}
         <button class="qname" data-qet="${team}" data-qen="${pnum}">${esc(name)}</button>
         ${isSrv?`<div class="serve-balls"><svg class="ball-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg></div>`:""}
       </div>`;
     }
+    // 코트 중앙에 겹쳐지는 3개의 위치 교체 버튼. sw2(팀이 뒤집힌 상태)에 따라
+    // A/B 버튼의 좌우 배치도 실제 코트에 표시된 팀 위치와 일치하도록 순서를 바꿔준다.
     const btnSwapA=`<button class="swap-btn swap-btn-a" data-pos="a" title="A팀 선수 교체">⇄</button>`;
     const btnSwapB=`<button class="swap-btn swap-btn-b" data-pos="b" title="B팀 선수 교체">⇄</button>`;
     const btnSwapMain=`<button class="swap-btn swap-btn-main" data-pos="teams" title="팀 위치 교체">⇆</button>`;
     const swCtrl=`<div class="swap-controls">${sw2?btnSwapB:btnSwapA}${btnSwapMain}${sw2?btnSwapA:btnSwapB}</div>`;
+    // 코트는 좌/우 두 개의 side로 나뉘고, 각 side 안에 top/bottom 두 개의 quad(선수 칸)가 있다.
     courtHtml=`<div class="court-wrap"><div class="court"><div class="court-side side-left">${quad(lt,"right",true,false)}${quad(lt,"left",false,false)}</div><div class="court-side side-right">${quad(rt,"left",true,true)}${quad(rt,"right",false,true)}</div>${swCtrl}</div></div>`;
   }
 
+  // 음성 안내 on/off에 따른 헤더 스피커 아이콘 SVG (모양만 다르고 동작은 btn-voice 클릭 핸들러에서 처리)
   const voiceIcon=_voiceEnabled
     ?`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>`
     :`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>`;
 
+  /** 점수판의 선수 이름 버튼을 만든다. isSrv면 서버 번호 배지(예: ①)를 함께 표시한다. 클릭 시 이름 수정 시트가 열린다(data-ef). */
   function pBtn(field,label,isSrv,sn){
     return`<button class="pname-btn" data-ef="${field}">${isSrv?`<span class="serve-r">${sn}</span>`:""}${esc(label)}<span class="edit-hint">✎</span></button>`;
   }
 
-  /* FIX 2: 다음 세트 버튼 — nextSetReady 일 때만 렌더 */
+  /* 다음 세트 시작 버튼 — nextSetReady일 때만 렌더 (그 외엔 빈 문자열) */
   const nextSetHtml=nextSetReady
     ?`<button class="next-set-btn" id="btn-nset">▶ 다음 세트</button>`
     :"";
 
-  /* 탭 존 or 결과 화면 */
+  /* ── 화면 하단부: 상황에 따라 3가지 중 하나를 렌더링 ──────────────────────
+     1) matchOver    → 최종 우승 화면 + "경기 상세 보기" 버튼
+     2) nextSetReady → 세트 승리 축하 화면 + 다음 세트 첫 서브 선수 선택 + "다음 세트" 버튼
+     3) 그 외(평상시) → 팀 A/B 득점용 탭존 두 개
+  */
   let tapZoneHtml="";
   if(matchOver){
+    // 시리즈 우승이 확정된 직후의 화면. 탭존 자리에 트로피와 결과 요약, 상세보기 버튼을 대신 보여준다.
     tapZoneHtml=`<div class="tap-zones"><div style="text-align:center;padding:16px 0;">
       <div style="font-size:38px;margin-bottom:8px;">🏆</div>
       <div style="font-size:20px;font-weight:800;color:var(--win)">${sw==="a"?`${esc(tn("a",1))} / ${esc(tn("a",2))}`:`${esc(tn("b",1))} / ${esc(tn("b",2))}`} 승리!</div>
@@ -594,12 +868,13 @@ function renderApp(){
       <button id="btn-md2" style="margin-top:14px;background:var(--blue);color:#fff;border:none;border-radius:12px;padding:11px 24px;font-size:14px;font-weight:700;cursor:pointer;">📊 경기 상세 보기</button>
     </div></div>`;
   } else if(nextSetReady){
-    /* FIX 2: 세트 종료 → 다음 세트 대기 화면 */
+    /* 세트 종료 → 다음 세트 대기 화면 */
     const last=state.gamesArr[state.gamesArr.length-1];
     const winTeam=last.winner;
     const winColor=winTeam==="a"?"var(--blue)":"var(--gold)";
-    const ns=last.winner==="a"?"b":"a";
+    const ns=last.winner==="a"?"b":"a"; // 다음 세트를 시작할 팀 (직전 세트 패자가 서브권을 받는 규칙)
     const nsColor=ns==="a"?"var(--blue)":"var(--gold)";
+    // 다음 세트 첫 서브 선수 선택 UI: ns팀의 두 선수 중 하나를 골라 _nextServerNum에 저장 (data-nsp 클릭 핸들러 참고)
     const serverPickHtml=`<div class="next-serve-pick">
       <div class="nsp-label">다음 세트 첫 서브 선수 · 팀 ${ns.toUpperCase()}</div>
       <div class="nsp-grid">
@@ -617,12 +892,16 @@ function renderApp(){
       ${nextSetHtml}
     </div>`;
   } else {
+    // 평상시 화면: 팀 A / 팀 B 득점 탭존 두 개.
+    // g가 없으면(아직 경기 시작 전) 버튼을 비활성 스타일로 보이게 하되, 실제로는 클릭 가능하게
+    // 두어서(disabled 속성 미사용) 탭하면 설정 드로어가 열리도록 유도한다 (bindEvents 참고).
     const btnA=`<button class="tap-zone zone-a${!g?" tap-zone-inactive":""}" id="btn-score-a">
         <span class="zlabel">팀 A</span><span class="zscore">${g?g.a:0}</span><span class="zhint">탭하여 득점</span>
       </button>`;
     const btnB=`<button class="tap-zone zone-b${!g?" tap-zone-inactive":""}" id="btn-score-b">
         <span class="zlabel">팀 B</span><span class="zscore">${g?g.b:0}</span><span class="zhint">탭하여 득점</span>
       </button>`;
+    // teamSwapped(코트에서 팀 위치가 뒤집힌 상태)면 탭존도 코트와 같은 좌우 순서로 배치한다
     tapZoneHtml=`<div class="tap-zones">${teamSwapped?btnB+btnA:btnA+btnB}</div>`;
   }
 
@@ -632,7 +911,7 @@ function renderApp(){
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
     </button>
     <div class="titles">
-      <h1><img class="app-logo" src="https://github.com/givemeryu-lab/TechnoPicklers/blob/main/2026-05-13_001.png?raw=true" alt="로고"><span style="font-size:13px;color:var(--text-dim);font-weight:500">세트 ${curSet||1} / ${ST}</span></h1>
+      <h1><img class="app-logo" src="https://github.com/givemeryu-lab/TechnoPicklers/blob/main/2026-05-13_001.png?raw=true" alt="로고"> 피클볼 <span style="font-size:13px;color:var(--text-dim);font-weight:500">세트 ${curSet||1} / ${state.seriesTarget}</span></h1>
       <div class="subtitle">팀 A ${gA} : ${gB} 팀 B &nbsp;·&nbsp; ${state.pointsToWin}점 ${state.winBy===2?"2점차":""}</div>
     </div>
     <div class="header-actions">
@@ -673,6 +952,13 @@ function renderApp(){
 }
 
 /* DRAWER */
+/**
+ * 좌측 설정 드로어(경기 세팅 화면) 전체를 그린다.
+ * #settings-drawer / #settings-overlay 두 컨테이너에 직접 innerHTML/className을
+ * 지정하는 방식으로, renderApp()과는 별도로 호출된다(그러나 항상 render()에서
+ * renderApp() 다음에 함께 호출됨). _drawerOpen 값에 따라 열림/닫힘 CSS 클래스만
+ * 토글하고, 내용은 매번 새로 그린다.
+ */
 function renderDrawer(){
   const p=state.players,sc=state.startingServerChoice;
   const servers=[{team:"a",num:1,label:p.a1||"선수 1"},{team:"b",num:1,label:p.b1||"선수 3"},{team:"a",num:2,label:p.a2||"선수 2"},{team:"b",num:2,label:p.b2||"선수 4"}];
@@ -695,13 +981,19 @@ function renderDrawer(){
     </div>
     <div class="game-settings-row"><div class="gs-label"><div class="t">목표 점수</div><div class="d">게임 종료 점수</div></div><div class="stepper"><button data-step="ptw" data-dir="-1">−</button><span class="val">${state.pointsToWin}</span><button data-step="ptw" data-dir="1">+</button></div></div>
     <div class="game-settings-row"><div class="gs-label"><div class="t">승리 조건</div><div class="d">점수 차이</div></div><div class="win-by-toggle"><button class="${state.winBy===2?"active":""}" data-wb="2">2점 차</button><button class="${state.winBy===1?"active":""}" data-wb="1">점수만</button></div></div>
-    <div class="game-settings-row" style="opacity:0.5;pointer-events:none;"><div class="gs-label"><div class="t">시리즈</div><div class="d">고정</div></div><div class="stepper"><span class="val" style="font-size:13px">3전 2선승</span></div></div>
+    <div class="game-settings-row"><div class="gs-label"><div class="t">시리즈</div><div class="d">몇 판 선승제</div></div><div class="win-by-toggle series-toggle"><button class="${state.seriesTarget===1?"active":""}" data-srt="1">1선승</button><button class="${state.seriesTarget===3?"active":""}" data-srt="3">2선승</button><button class="${state.seriesTarget===5?"active":""}" data-srt="5">3선승</button></div></div>
     <div class="error-msg">${_setupErr}</div>
     <button class="history-menu-btn" id="btn-history-menu">🗂️ 저장된 경기 기록 보기 (DB)</button>
   </div>`;
 }
 
 /* MATCH MODAL */
+/**
+ * 시리즈(매치) 종료 시 뜨는 "Match Detail" 모달을 그린다.
+ * 트로피 배너 + 3개 탭(상세/통계/타임라인) + 하단 버튼(새 시리즈 시작/공유/닫기)으로 구성.
+ * 실제 탭 내용은 renderMatchDetails/renderMatchStats/renderMatchBreakdown이 위임 호출하는
+ * renderDetailsGeneric/renderStatsGeneric/renderBreakdownGeneric(재사용 렌더러)에서 만든다.
+ */
 function renderMatchModal(){
   const sw=checkSeriesWin(),gA=gamesWon("a"),gB=gamesWon("b");
   const wt=sw==="a"?`${esc(tn("a",1))} / ${esc(tn("a",2))}`:`${esc(tn("b",1))} / ${esc(tn("b",2))}`;
@@ -709,7 +1001,7 @@ function renderMatchModal(){
   let body=_matchModalTab==="details"?renderMatchDetails():_matchModalTab==="stats"?renderMatchStats():renderMatchBreakdown();
   return`<div class="match-modal-overlay" id="mmo">
     <div class="match-modal">
-      <div class="match-banner"><div class="match-trophy">🏆</div><div class="match-winner-name"><span class="${wc}">${wt}</span> 승리!</div><div class="match-winner-sub">세트 스코어 ${gA} : ${gB} &nbsp;·&nbsp; 3전 2선승</div><button class="match-close-x" id="match-close-x">✕</button></div>
+      <div class="match-banner"><div class="match-trophy">🏆</div><div class="match-winner-name"><span class="${wc}">${wt}</span> 승리!</div><div class="match-winner-sub">세트 스코어 ${gA} : ${gB} &nbsp;·&nbsp; ${seriesLabel(state.seriesTarget)}</div><button class="match-close-x" id="match-close-x">✕</button></div>
       <div class="match-tabs"><button class="match-tab${_matchModalTab==="details"?" active":""}" data-mt="details">상세</button><button class="match-tab${_matchModalTab==="stats"?" active":""}" data-mt="stats">통계</button><button class="match-tab${_matchModalTab==="breakdown"?" active":""}" data-mt="breakdown">타임라인</button></div>
       <div class="match-body">${body}</div>
       <div class="match-footer"><button class="btn-primary" id="btn-new-series">🔄 새 시리즈 시작</button><button class="btn-secondary" id="btn-share-match">📤 경기결과 공유</button><button class="btn-secondary" id="btn-close-match">닫기</button></div>
@@ -717,11 +1009,19 @@ function renderMatchModal(){
   </div>`;
 }
 
+// 현재 진행 중인 시리즈(state.gamesArr)를 대상으로 재사용 렌더러를 호출하는 얇은 래퍼들
 function renderMatchDetails(){return renderDetailsGeneric(state.gamesArr,tn);}
 function renderMatchStats(){return renderStatsGeneric(state.gamesArr,tn);}
 function renderMatchBreakdown(){return renderBreakdownGeneric(state.gamesArr,tn);}
 
-/* SHARE */
+/* ============================================================================
+   SHARE — 경기 결과 텍스트 공유 (Web Share API → 클립보드 → prompt 순으로 폴백)
+   ============================================================================ */
+/**
+ * 세트별 스코어 + 통계(세트 승리/총 득점/득점률/최고 세트 점수)를 사람이 읽기 좋은
+ * 텍스트로 조립한다. gs: 세트 배열, tnf: 이름 조회 함수(tn 또는 tnFrom(rec)),
+ * winnerTeam: 우승 팀("a"|"b").
+ */
 function buildMatchShareText(gs,tnf,winnerTeam){
   const teamA=`${tnf("a",1)} / ${tnf("a",2)}`;
   const teamB=`${tnf("b",1)} / ${tnf("b",2)}`;
@@ -738,6 +1038,13 @@ function buildMatchShareText(gs,tnf,winnerTeam){
   lines.push(`최고 세트 점수: ${mA} - ${mB}`);
   return lines.join("\n");
 }
+/**
+ * 조립된 텍스트를 실제로 "공유"한다. 우선순위:
+ * 1) navigator.share (모바일 공유 시트, 카카오톡 등으로 바로 전달 가능)
+ * 2) navigator.clipboard.writeText (클립보드 복사 후 alert로 안내)
+ * 3) window.prompt (위 둘 다 안 되면 텍스트를 보여주고 수동 복사하게 함)
+ * 공유 시트를 사용자가 취소한 경우(AbortError)는 정상 흐름이므로 조용히 종료한다.
+ */
 async function shareMatchText(text){
   if(navigator.share){
     try{await navigator.share({title:"피클볼 경기 결과",text});return;}catch(e){if(e&&e.name==="AbortError")return;}
@@ -747,10 +1054,15 @@ async function shareMatchText(text){
   }
   window.prompt("아래 내용을 복사하세요:",text);
 }
-function shareCurrentMatch(){shareMatchText(buildMatchShareText(state.gamesArr,tn,checkSeriesWin()));}
-function shareHistoryMatch(rec){if(!rec)return;shareMatchText(buildMatchShareText(rec.games||[],tnFrom(rec),rec.winner));}
+function shareCurrentMatch(){shareMatchText(buildMatchShareText(state.gamesArr,tn,checkSeriesWin()));} // 현재 진행중/방금 끝난 시리즈 공유
+function shareHistoryMatch(rec){if(!rec)return;shareMatchText(buildMatchShareText(rec.games||[],tnFrom(rec),rec.winner));} // DB에 저장된 과거 기록 공유
 
-/* 재사용 가능한 렌더러 — 현재 진행중인 경기(state.gamesArr)와 DB 기록(rec.games) 양쪽에서 사용 */
+/**
+ * 재사용 가능한 렌더러 모음 — 아래 3개 함수는 "진행 중인 경기(state.gamesArr + tn)"와
+ * "DB에서 불러온 과거 기록(rec.games + tnFrom(rec))" 양쪽 모두에서 동일하게 호출된다.
+ * gs: 세트(게임) 객체 배열, tnf: (team,num)=>이름 형태의 조회 함수.
+ */
+/** [상세] 탭: 세트별로 카드 하나씩, 팀별 최종 점수와 승/패 배지를 보여준다. */
 function renderDetailsGeneric(gs,tnf){
   if(!gs.length)return`<p style="color:var(--text-dim);text-align:center;padding:20px 0">기록 없음</p>`;
   return gs.map((g,i)=>{
@@ -766,6 +1078,7 @@ function renderDetailsGeneric(gs,tnf){
   }).join("");
 }
 
+/** [통계] 탭: 전체 시리즈 합산 기준 세트 승리/총 득점/득점률/최고 세트 점수를 막대그래프로 보여준다. */
 function renderStatsGeneric(gs,tnf){
   const tA=gs.reduce((s,g)=>s+g.a,0),tB=gs.reduce((s,g)=>s+g.b,0),tot=tA+tB||1;
   const wA=gs.filter(g=>g.winner==="a").length,wB=gs.filter(g=>g.winner==="b").length;
@@ -775,12 +1088,17 @@ function renderStatsGeneric(gs,tnf){
   ${sb("세트 승리",wA,wB,wA+wB)}${sb("총 득점",tA,tB,tA+tB)}${sb("득점률 (%)",Math.round(tA/tot*100),Math.round(tB/tot*100),100)}${sb("최고 세트 점수",mA,mB,Math.max(mA,mB)||1)}`;
 }
 
+/** 통계 탭의 항목 하나(예: "총 득점")를 좌우 숫자 + 비율 막대 두 줄로 그리는 헬퍼. tot이 0이면 0으로 나누기를 피하려고 1로 처리한다. */
 function sb(label,a,b,tot){
   const t=tot||1,wa=Math.round(a/t*100),wb=Math.round(b/t*100);
   return`<div class="stat-block"><div class="stat-values"><span class="val-a">${a}</span><span class="stat-label">${label}</span><span class="val-b">${b}</span></div><div class="stat-bars"><div class="bar-track"><div class="bar-a" style="width:${wa}%"></div></div><div class="bar-track"><div class="bar-b" style="width:${wb}%"></div></div></div></div>`;
 }
 
-/* FIX 1: Breakdown — 세트별 독립 섹션으로 분리 */
+/**
+ * [타임라인] 탭: 세트별로 독립된 섹션을 만들고, 그 안에 실제 득점(사이드아웃 제외,
+ * scored!==false 필터링)만 순서대로 나열해 득점 흐름을 보여준다. 각 랠리마다
+ * 득점 시점의 팀 내부 누적 스코어(sA/sB)와 전체 세트 스코어 스냅샷을 함께 표시한다.
+ */
 function renderBreakdownGeneric(gs,tnf){
   if(!gs.length)return`<p style="color:var(--text-dim);text-align:center;padding:20px 0">기록 없음</p>`;
   return gs.map((g,gi)=>{
@@ -813,7 +1131,14 @@ function renderBreakdownGeneric(gs,tnf){
   }).join("");
 }
 
-/* HISTORY (DB) MODALS */
+/* ============================================================================
+   HISTORY (DB) MODALS — 경기 기록(히스토리) 목록/상세 화면
+   ============================================================================ */
+/**
+ * 경기 기록 모달의 진입점. _historyDetail이 설정되어 있으면(항목을 선택한 상태)
+ * 상세 화면(renderHistoryDetailModal)으로 위임하고, 아니면 목록 화면을 그린다.
+ * 목록 상태(DB 미연결/로딩중/빈 목록/실제 목록) 4가지 경우를 순서대로 처리한다.
+ */
 function renderHistoryModal(){
   if(_historyDetail)return renderHistoryDetailModal(_historyDetail);
   let body;
@@ -852,6 +1177,12 @@ function renderHistoryModal(){
   </div>`;
 }
 
+/**
+ * 히스토리 목록에서 항목 하나를 선택했을 때의 상세 화면. renderMatchModal과 거의
+ * 동일한 레이아웃(트로피 배너 + 3탭 + 공유/뒤로가기 버튼)을 공유하지만, 데이터
+ * 출처가 state가 아닌 rec(=DB에서 불러온 과거 기록 객체)라는 점이 다르다.
+ * 이름 조회는 tn() 대신 tnFrom(rec)로 만든 함수를 사용한다.
+ */
 function renderHistoryDetailModal(rec){
   const gs=rec.games||[];
   const gA=rec.gamesA??gs.filter(g=>g.winner==="a").length;
@@ -863,7 +1194,7 @@ function renderHistoryDetailModal(rec){
   let body=_histModalTab==="details"?renderDetailsGeneric(gs,tnf):_histModalTab==="stats"?renderStatsGeneric(gs,tnf):renderBreakdownGeneric(gs,tnf);
   return`<div class="match-modal-overlay" id="hdmo">
     <div class="match-modal">
-      <div class="match-banner"><div class="match-trophy">🏆</div><div class="match-winner-name"><span class="${wc}">${wt}</span> 승리!</div><div class="match-winner-sub">세트 스코어 ${gA} : ${gB}</div><button class="match-close-x" id="hd-close-x">✕</button></div>
+      <div class="match-banner"><div class="match-trophy">🏆</div><div class="match-winner-name"><span class="${wc}">${wt}</span> 승리!</div><div class="match-winner-sub">세트 스코어 ${gA} : ${gB}${rec.seriesTarget?` &nbsp;·&nbsp; ${seriesLabel(rec.seriesTarget)}`:""}</div><button class="match-close-x" id="hd-close-x">✕</button></div>
       <div class="match-tabs"><button class="match-tab${_histModalTab==="details"?" active":""}" data-hmt="details">상세</button><button class="match-tab${_histModalTab==="stats"?" active":""}" data-hmt="stats">통계</button><button class="match-tab${_histModalTab==="breakdown"?" active":""}" data-hmt="breakdown">타임라인</button></div>
       <div class="match-body">${body}</div>
       <div class="match-footer"><button class="btn-secondary" id="btn-share-hist">📤 경기결과 공유</button><button class="btn-secondary" id="btn-hist-back">← 목록으로</button></div>
@@ -871,8 +1202,16 @@ function renderHistoryDetailModal(rec){
   </div>`;
 }
 
-/* CONFIRM / PICKER */
+/* ============================================================================
+   CONFIRM / PICKER — 작은 공용 모달 2종
+   ============================================================================ */
+/** "초기화" 확인 바텀시트. #cy(확인)/#cc(취소) 클릭은 bindEvents()에서 처리된다. */
 function renderConfirmReset(){return`<div class="modal-overlay" id="mob"><div class="confirm-sheet"><p>모든 기록이 초기화됩니다.</p><div class="row"><button class="danger" id="cy">초기화</button><button class="cancel" id="cc">취소</button></div></div></div>`;}
+/**
+ * 선수 이름을 "최근 사용 명단(roster)"에서 골라 특정 필드(a1/a2/b1/b2)에 채워 넣는
+ * 바텀시트. 상단에서 새 이름을 추가할 수도 있다(#rai 입력 + #rab 버튼).
+ * field: 어느 필드에 대한 피커인지 ("a1"|"a2"|"b1"|"b2").
+ */
 function renderPickerSheet(field){
   const r=state.roster;
   const lbs={a1:"팀 A · 선수 1",a2:"팀 A · 선수 2",b1:"팀 B · 선수 1",b2:"팀 B · 선수 2"};
@@ -884,84 +1223,109 @@ function renderPickerSheet(field){
   </div></div></div>`;
 }
 
-/* BIND */
-function q(s){return document.querySelector(s);}
-function qA(s){return Array.from(document.querySelectorAll(s));}
-function on(s,ev,fn){const el=q(s);if(el)el.addEventListener(ev,fn);}
+/* ============================================================================
+   BIND — DOM 조회 헬퍼 & 이벤트 리스너 일괄 재바인딩
+   ----------------------------------------------------------------------------
+   이 앱은 매 render() 호출마다 innerHTML을 통째로 교체하므로, 기존 DOM 요소에
+   걸려있던 이벤트 리스너는 전부 사라진다. 따라서 render()의 마지막 단계에서
+   bindEvents()를 호출해 "지금 막 새로 그려진" 모든 상호작용 요소에 리스너를
+   다시 건다. id 선택자는 on()(단일 요소), 여러 개 있을 수 있는 요소는
+   qA(...).forEach(...) 패턴을 사용한다.
+   ============================================================================ */
+function q(s){return document.querySelector(s);} // 단일 요소 조회
+function qA(s){return Array.from(document.querySelectorAll(s));} // 여러 요소 조회 (배열로 변환해 forEach 사용 가능하게)
+function on(s,ev,fn){const el=q(s);if(el)el.addEventListener(ev,fn);} // 요소가 존재할 때만(현재 화면에 렌더된 경우만) 안전하게 리스너 등록
 
+/** 현재 렌더된 DOM 전체를 대상으로 모든 클릭/입력 이벤트 리스너를 (재)등록한다. render()에서 매번 호출됨. */
 function bindEvents(){
+  // ── 헤더 아이콘 버튼들 ──
   on("#btn-open-settings","click",()=>{_drawerOpen=true;render();});
   on("#btn-voice","click",()=>{_voiceEnabled=!_voiceEnabled;if(!_voiceEnabled)speechSynthesis.cancel();render();});
   on("#btn-reset","click",()=>{_modal=()=>renderConfirmReset();render();});
   on("#btn-match-detail","click",()=>{_matchModalTab="details";_modal=()=>renderMatchModal();render();});
   on("#btn-md2","click",()=>{_matchModalTab="details";_modal=()=>renderMatchModal();render();});
-  on("#btn-history","click",openHistory);
-  on("#btn-history-menu","click",()=>{_drawerOpen=false;openHistory();});
+  // ── 경기 기록(히스토리) 모달 관련 ──
+  on("#btn-history","click",openHistory); // 헤더의 🕘 아이콘
+  on("#btn-history-menu","click",()=>{_drawerOpen=false;openHistory();}); // 설정 드로어 안의 "저장된 경기 기록 보기" 버튼
   on("#hist-close-x","click",closeHistory);
   on("#btn-close-history","click",closeHistory);
-  on("#hd-close-x","click",()=>{_historyDetail=null;render();});
-  on("#btn-hist-back","click",()=>{_historyDetail=null;render();});
-  qA("[data-hmt]").forEach(tab=>tab.addEventListener("click",()=>{_histModalTab=tab.dataset.hmt;render();}));
+  on("#hd-close-x","click",()=>{_historyDetail=null;render();}); // 상세 화면 ✕ → 목록으로
+  on("#btn-hist-back","click",()=>{_historyDetail=null;render();}); // 상세 화면 "← 목록으로" 버튼
+  qA("[data-hmt]").forEach(tab=>tab.addEventListener("click",()=>{_histModalTab=tab.dataset.hmt;render();})); // 히스토리 상세의 상세/통계/타임라인 탭 전환
+  // 목록에서 항목(카드) 자체를 클릭하면 상세로 진입한다. 단, 삭제(✕) 버튼 클릭이 함께 버블링되지 않도록
+  // closest("[data-hdel]")로 감지해 그 경우엔 무시한다 (삭제 버튼은 바로 아래 별도 리스너가 처리).
   qA("[data-hid]").forEach(el=>el.addEventListener("click",e=>{if(e.target.closest("[data-hdel]"))return;const id=el.dataset.hid;const m=(_historyMatches||[]).find(x=>x.id===id);if(m){_historyDetail=m;_histModalTab="details";render();}}));
-  qA("[data-hdel]").forEach(btn=>btn.addEventListener("click",e=>{e.stopPropagation();deleteHistoryItem(btn.dataset.hdel);}));
+  qA("[data-hdel]").forEach(btn=>btn.addEventListener("click",e=>{e.stopPropagation();deleteHistoryItem(btn.dataset.hdel);})); // stopPropagation으로 위 카드 클릭(상세 진입)이 함께 발생하지 않도록 함
+
+  // ── 득점 탭존 & 되돌리기 ──
+  // 아직 진행 중인 세트가 없으면(state.current===null) 득점 대신 설정 드로어를 열어준다.
   on("#btn-score-a","click",()=>{if(!state.current){_drawerOpen=true;render();return;}scorePoint("a");});
   on("#btn-score-b","click",()=>{if(!state.current){_drawerOpen=true;render();return;}scorePoint("b");});
   on("#btn-undo","click",undoPoint);
 
-  /* FIX 2: 다음 세트 버튼 — canStartNextSet() 이 true 일 때만 렌더됨 */
+  /* "▶ 다음 세트" 버튼: canStartNextSet()이 true일 때만 DOM에 존재하므로 on()이 조용히 무시하고 넘어갈 수 있음.
+     클릭 시: 직전 세트 패자를 다음 세트 시작팀(ns)으로 하여 새 게임을 만들고, _nextServerNum(사용자가 고른 서버)로 초기화한다. */
   on("#btn-nset","click",()=>{
-    if(!canStartNextSet())return;
+    if(!canStartNextSet())return; // 방어적 재확인 (렌더-클릭 사이에 상태가 바뀌었을 가능성 대비)
     const last=state.gamesArr[state.gamesArr.length-1];
-    const ns=last?last.winner==="a"?"b":"a":"a";
+    const ns=last?last.winner==="a"?"b":"a":"a"; // 직전 세트에서 진 팀이 다음 세트를 시작
     state.current=newGame(ns,_nextServerNum||1);
-    _nextServerNum=1;
+    _nextServerNum=1; // 다음번을 위해 선택값 초기화
     save();render();
   });
-  qA("[data-nsp]").forEach(btn=>btn.addEventListener("click",()=>{_nextServerNum=parseInt(btn.dataset.nsp);render();}));
+  qA("[data-nsp]").forEach(btn=>btn.addEventListener("click",()=>{_nextServerNum=parseInt(btn.dataset.nsp);render();})); // 다음 세트 첫 서브 선수 고르기
 
-  /* Name edit — score table */
-  qA("[data-ef]").forEach(btn=>btn.addEventListener("click",e=>{e.stopPropagation();openNameEdit(btn.dataset.ef);}));
-  /* Name edit — court quad */
-  qA("[data-qet]").forEach(btn=>btn.addEventListener("click",e=>{e.stopPropagation();const t=btn.dataset.qet,n=parseInt(btn.dataset.qen);openNameEdit(t+(n===1?"1":"2"));}));
+  /* 선수 이름 수정 바텀시트 열기 — 점수판의 이름 버튼(data-ef)과 코트 위 이름 버튼(data-qet/qen) 두 군데서 진입 가능 */
+  qA("[data-ef]").forEach(btn=>btn.addEventListener("click",e=>{e.stopPropagation();openNameEdit(btn.dataset.ef);})); // 점수판 이름 클릭
+  qA("[data-qet]").forEach(btn=>btn.addEventListener("click",e=>{e.stopPropagation();const t=btn.dataset.qet,n=parseInt(btn.dataset.qen);openNameEdit(t+(n===1?"1":"2"));})); // 코트 위 이름 클릭 (team+num → "a1" 형태 필드명으로 변환)
 
-  /* Swap */
-
-  /* Position controls bar (always-visible 3 buttons) */
+  /* 코트 중앙의 위치 교체 버튼 3개 (data-pos="teams"|"a"|"b"). 항상 화면에 떠 있으므로
+     경기 시작 전(preGame)에 눌러도 동작해야 하는데, 이 경우 state.current가 아직 없으므로
+     ensurePre()를 통해 (없으면 만들어서) 실제 게임 객체를 확보한 뒤 좌우를 교체한다. */
   qA("[data-pos]").forEach(btn=>btn.addEventListener("click",()=>{
     const p=btn.dataset.pos;
-    if(p==="teams"){if(state.current){state.current.teamSideSwapped=!state.current.teamSideSwapped;save();}render();}
-    else if(p==="a"){const cg=ensurePre();if(cg){const t=cg.posA.right;cg.posA.right=cg.posA.left;cg.posA.left=t;save();}render();}
-    else if(p==="b"){const cg=ensurePre();if(cg){const t=cg.posB.right;cg.posB.right=cg.posB.left;cg.posB.left=t;save();}render();}
+    if(p==="teams"){ // ⇆ 팀 위치 교체: 코트에서 A/B 팀이 표시되는 좌우를 통째로 뒤집음 (진행 중인 세트가 있을 때만 의미 있음)
+      if(state.current){state.current.teamSideSwapped=!state.current.teamSideSwapped;save();}render();
+    }
+    else if(p==="a"){ // ⇄ A팀 선수 교체: A팀 두 선수의 좌/우 서있는 위치를 맞바꿈
+      const cg=ensurePre();if(cg){const t=cg.posA.right;cg.posA.right=cg.posA.left;cg.posA.left=t;save();}render();
+    }
+    else if(p==="b"){ // ⇄ B팀 선수 교체: B팀 두 선수의 좌/우 서있는 위치를 맞바꿈
+      const cg=ensurePre();if(cg){const t=cg.posB.right;cg.posB.right=cg.posB.left;cg.posB.left=t;save();}render();
+    }
   }));
 
-  /* Drawer */
-  on("#btn-dc","click",()=>{_drawerOpen=false;render();});
-  document.getElementById("settings-overlay")?.addEventListener("click",()=>{_drawerOpen=false;render();});
-  qA("input[data-field]").forEach(el=>el.addEventListener("input",e=>{state.players[e.target.dataset.field]=e.target.value;_setupErr="";}));
-  qA("[data-pick]").forEach(btn=>btn.addEventListener("click",()=>{_pickerField=btn.dataset.pick;_modal=()=>renderPickerSheet(_pickerField);render();}));
-  qA("[data-sct]").forEach(el=>el.addEventListener("click",()=>{state.startingServerChoice={team:el.dataset.sct,num:parseInt(el.dataset.scn)};render();}));
-  qA("[data-step]").forEach(btn=>btn.addEventListener("click",()=>{const d=parseInt(btn.dataset.dir);if(btn.dataset.step==="ptw")state.pointsToWin=Math.max(7,Math.min(21,state.pointsToWin+d));render();}));
-  qA("[data-wb]").forEach(btn=>btn.addEventListener("click",()=>{state.winBy=parseInt(btn.dataset.wb);render();}));
-  on("#btn-start","click",startGame);
+  // ── 설정 드로어 내부 컨트롤들 ──
+  on("#btn-dc","click",()=>{_drawerOpen=false;render();}); // 드로어 헤더의 ✕ 닫기 버튼
+  document.getElementById("settings-overlay")?.addEventListener("click",()=>{_drawerOpen=false;render();}); // 배경(오버레이) 탭으로도 닫기
+  qA("input[data-field]").forEach(el=>el.addEventListener("input",e=>{state.players[e.target.dataset.field]=e.target.value;_setupErr="";})); // 선수 이름 입력창 — 입력할 때마다 즉시 state에 반영 (여기선 save()/render() 호출 없이 가볍게, 다음 액션 때 함께 저장됨)
+  qA("[data-pick]").forEach(btn=>btn.addEventListener("click",()=>{_pickerField=btn.dataset.pick;_modal=()=>renderPickerSheet(_pickerField);render();})); // 이름 입력창 옆 🔍 아이콘 → 명단 선택 시트 열기
+  qA("[data-sct]").forEach(el=>el.addEventListener("click",()=>{state.startingServerChoice={team:el.dataset.sct,num:parseInt(el.dataset.scn)};render();})); // 첫 서브 선수 4명 중 선택
+  qA("[data-step]").forEach(btn=>btn.addEventListener("click",()=>{const d=parseInt(btn.dataset.dir);if(btn.dataset.step==="ptw")state.pointsToWin=Math.max(7,Math.min(21,state.pointsToWin+d));render();})); // 목표 점수 +/- 스테퍼 (7~21 범위로 clamp)
+  qA("[data-wb]").forEach(btn=>btn.addEventListener("click",()=>{state.winBy=parseInt(btn.dataset.wb);render();})); // 승리 조건: 2점차 / 점수만 토글
+  qA("[data-srt]").forEach(btn=>btn.addEventListener("click",()=>{state.seriesTarget=parseInt(btn.dataset.srt);save();render();})); // 시리즈 형식: 1/2/3선승 토글
+  on("#btn-start","click",startGame); // "▶ 경기 새로 시작" — 지금까지의 세팅으로 첫 세트를 시작
 
-  /* Match modal */
+  // ── Match Detail 모달 ──
   on("#match-close-x","click",closeMatchModal);
   on("#btn-close-match","click",closeMatchModal);
-  on("#btn-share-match","click",shareCurrentMatch);
-  on("#btn-share-hist","click",()=>shareHistoryMatch(_historyDetail));
-  on("#btn-new-series","click",()=>{const{players,roster,pointsToWin,winBy}=state;state=freshState();Object.assign(state,{players,roster,pointsToWin,winBy});_modal=null;_matchSaved=false;save();render();});
-  qA("[data-mt]").forEach(tab=>tab.addEventListener("click",()=>{_matchModalTab=tab.dataset.mt;render();}));
+  on("#btn-share-match","click",shareCurrentMatch); // 📤 경기결과 공유 (현재 시리즈)
+  on("#btn-share-hist","click",()=>shareHistoryMatch(_historyDetail)); // 📤 경기결과 공유 (히스토리에서 본 과거 기록)
+  // 🔄 새 시리즈 시작: 상태를 완전히 초기화(freshState)하되, 선수 명단/설정(목표점수·승리조건·시리즈형식)만 유지해서 되살린다.
+  on("#btn-new-series","click",()=>{const{players,roster,pointsToWin,winBy,seriesTarget}=state;state=freshState();Object.assign(state,{players,roster,pointsToWin,winBy,seriesTarget});_modal=null;_matchSaved=false;save();render();});
+  qA("[data-mt]").forEach(tab=>tab.addEventListener("click",()=>{_matchModalTab=tab.dataset.mt;render();})); // Match Detail의 상세/통계/타임라인 탭 전환
 
-  /* Confirm */
-  on("#mob","click",e=>{if(e.target.id==="mob")closeModal();});
+  // ── 초기화 확인 모달 ──
+  on("#mob","click",e=>{if(e.target.id==="mob")closeModal();}); // 오버레이 배경(카드 바깥) 클릭 시 닫기
+  // "초기화" 확인 → 새 시리즈 시작과 동일하게 players/roster/설정은 보존, 나머지(점수·기록)만 리셋
   on("#cy","click",()=>{const{players,roster,pointsToWin,winBy}=state;state=freshState();Object.assign(state,{players,roster,pointsToWin,winBy});_modal=null;_matchSaved=false;save();render();});
-  on("#cc","click",closeModal);
+  on("#cc","click",closeModal); // "취소"
 
-  /* Picker */
-  on("#rab","click",()=>{const i=q("#rai");const n=(i?.value||"").trim();if(n&&!state.roster.includes(n)){state.roster.push(n);save();}render();});
-  qA(".roster-del-btn").forEach(btn=>btn.addEventListener("click",()=>{state.roster=state.roster.filter(n=>n!==btn.dataset.name);save();render();}));
-  qA(".roster-pick-btn").forEach(btn=>btn.addEventListener("click",()=>{if(btn.dataset.field)state.players[btn.dataset.field]=btn.dataset.name;closeModal();}));
-  on("#pcb","click",closeModal);
+  // ── 선수 명단(roster) 선택 시트 ──
+  on("#rab","click",()=>{const i=q("#rai");const n=(i?.value||"").trim();if(n&&!state.roster.includes(n)){state.roster.push(n);save();}render();}); // "추가" 버튼 — 중복이 아니면 명단에 새 이름 추가
+  qA(".roster-del-btn").forEach(btn=>btn.addEventListener("click",()=>{state.roster=state.roster.filter(n=>n!==btn.dataset.name);save();render();})); // 명단 항목 삭제(✕)
+  qA(".roster-pick-btn").forEach(btn=>btn.addEventListener("click",()=>{if(btn.dataset.field)state.players[btn.dataset.field]=btn.dataset.name;closeModal();})); // 명단에서 이름 선택 → 해당 필드에 반영
+  on("#pcb","click",closeModal); // 피커 시트 "취소"
 }
 
 function ensurePre(){if(!state.current){const sc=state.startingServerChoice;state.current=newGame(sc.team,sc.num);}return state.current;}
