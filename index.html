@@ -42,14 +42,14 @@ html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:
 #app{max-width:480px;margin:0 auto;min-height:100dvh;display:flex;flex-direction:column;position:relative;} /* 모바일 폭 기준 중앙 정렬 컨테이너 */
 
 /* ── 1. 헤더 (☰ 메뉴, 로고/타이틀, 🔊/🏆/🕘/↺ 아이콘) ── */
+.header{display:flex;align-items:center;gap:10px;padding:14px 16px 12px;border-bottom:1px solid var(--line);flex:none;}
 .header .icon-btn{background:none;border:none;color:var(--text-dim);width:36px;height:36px;display:flex;align-items:center;justify-content:center;border-radius:9px;flex:none;cursor:pointer;}
 .header .icon-btn:active{background:var(--panel-raised);}
 .icon-btn.voice-on{color:var(--blue)!important;background:var(--blue-dim)!important;}
-.header .titles{flex:1;min-width:0;}
+.header .titles{min-width:0;}
 .header h1{font-size:19px;font-weight:700;margin:0;display:flex;align-items:center;gap:6px;}
 .app-logo{height:22px;width:auto;max-width:32px;border-radius:6px;object-fit:contain;flex:none;}
-.header .subtitle{font-size:12.5px;color:var(--text-dim);margin-top:1px;}
-.header-actions{display:flex;gap:4px;}
+.header-actions{display:flex;gap:4px;margin-left:auto;}
 
 /* ── 2. 설정 드로어 — ☰ 아이콘으로 여는 좌측 슬라이드 패널 ── */
 /* 반투명 배경 오버레이: .open 클래스가 붙으면 fade-in되며 클릭 시 드로어를 닫는다 */
@@ -672,7 +672,7 @@ function scorePoint(team){
   }
   else{
     // 세트 종료: 음성으로 "Game! ~ wins!" 안내 후, 이 게임을 gamesArr에 확정 이관
-    if(_voiceEnabled&&window.speechSynthesis){speechSynthesis.cancel();const wn=w==="a"?`${state.players.a1||"Team A"} and ${state.players.a2||"Team A-2"}`:`${state.players.b1||"Team B"} and ${state.players.b2||"Team B-2"}`;const u=new SpeechSynthesisUtterance("Game! "+wn+" win!");u.lang="en-US";u.rate=0.9;u.pitch=1.1;const v=pickVoice();if(v)u.voice=v;speechSynthesis.speak(u);}
+    if(_voiceEnabled&&window.speechSynthesis){speechSynthesis.cancel();const wn=w==="a"?`${state.players.a1||"Team A"} and ${state.players.a2||"Team A-2"}`:`${state.players.b1||"Team B"} and ${state.players.b2||"Team B-2"}`;const u=new SpeechSynthesisUtterance("Game! "+wn+" 승리!");u.lang="en-US";u.rate=0.9;u.pitch=1.1;const v=pickVoice();if(v)u.voice=v;speechSynthesis.speak(u);}
     g.winner=w;state.gamesArr.push(g);state.current=null;_nextServerNum=1; // 다음 세트 서버 선택값 초기화
   }
   save(); // 매 랠리마다 Firestore에 저장 (실시간 동기화)
@@ -912,7 +912,6 @@ function renderApp(){
     </button>
     <div class="titles">
       <h1><img class="app-logo" src="https://github.com/givemeryu-lab/TechnoPicklers/blob/main/2026-05-13_001.png?raw=true" alt="로고"> 피클볼 <span style="font-size:13px;color:var(--text-dim);font-weight:500">세트 ${curSet||1} / ${state.seriesTarget}</span></h1>
-      <div class="subtitle">팀 A ${gA} : ${gB} 팀 B &nbsp;·&nbsp; ${state.pointsToWin}점 ${state.winBy===2?"2점차":""}</div>
     </div>
     <div class="header-actions">
       <button class="icon-btn${_voiceEnabled?" voice-on":""}" id="btn-voice">${voiceIcon}</button>
@@ -979,7 +978,6 @@ function renderDrawer(){
     <div class="server-select-block"><div class="team-label server-select-label"><span class="dot"></span>첫 서브 선수</div>
       <div class="server-choice-grid">${servers.map(s=>`<div class="server-choice${sc.team===s.team&&sc.num===s.num?" active":""}" data-sct="${s.team}" data-scn="${s.num}"><small style="font-size:10px;color:${sc.team===s.team&&sc.num===s.num?"rgba(255,255,255,0.65)":"var(--text-faint)"}">팀 ${s.team.toUpperCase()}</small><span class="sc-name">${esc(s.label)}</span></div>`).join("")}</div>
     </div>
-    <div class="game-settings-row"><div class="gs-label"><div class="t">목표 점수</div><div class="d">게임 종료 점수</div></div><div class="stepper"><button data-step="ptw" data-dir="-1">−</button><span class="val">${state.pointsToWin}</span><button data-step="ptw" data-dir="1">+</button></div></div>
     <div class="game-settings-row"><div class="gs-label"><div class="t">승리 조건</div><div class="d">점수 차이</div></div><div class="win-by-toggle"><button class="${state.winBy===2?"active":""}" data-wb="2">2점 차</button><button class="${state.winBy===1?"active":""}" data-wb="1">점수만</button></div></div>
     <div class="game-settings-row"><div class="gs-label"><div class="t">시리즈</div><div class="d">몇 판 선승제</div></div><div class="win-by-toggle series-toggle"><button class="${state.seriesTarget===1?"active":""}" data-srt="1">1선승</button><button class="${state.seriesTarget===3?"active":""}" data-srt="3">2선승</button><button class="${state.seriesTarget===5?"active":""}" data-srt="5">3선승</button></div></div>
     <div class="error-msg">${_setupErr}</div>
@@ -1301,7 +1299,6 @@ function bindEvents(){
   qA("input[data-field]").forEach(el=>el.addEventListener("input",e=>{state.players[e.target.dataset.field]=e.target.value;_setupErr="";})); // 선수 이름 입력창 — 입력할 때마다 즉시 state에 반영 (여기선 save()/render() 호출 없이 가볍게, 다음 액션 때 함께 저장됨)
   qA("[data-pick]").forEach(btn=>btn.addEventListener("click",()=>{_pickerField=btn.dataset.pick;_modal=()=>renderPickerSheet(_pickerField);render();})); // 이름 입력창 옆 🔍 아이콘 → 명단 선택 시트 열기
   qA("[data-sct]").forEach(el=>el.addEventListener("click",()=>{state.startingServerChoice={team:el.dataset.sct,num:parseInt(el.dataset.scn)};render();})); // 첫 서브 선수 4명 중 선택
-  qA("[data-step]").forEach(btn=>btn.addEventListener("click",()=>{const d=parseInt(btn.dataset.dir);if(btn.dataset.step==="ptw")state.pointsToWin=Math.max(7,Math.min(21,state.pointsToWin+d));render();})); // 목표 점수 +/- 스테퍼 (7~21 범위로 clamp)
   qA("[data-wb]").forEach(btn=>btn.addEventListener("click",()=>{state.winBy=parseInt(btn.dataset.wb);render();})); // 승리 조건: 2점차 / 점수만 토글
   qA("[data-srt]").forEach(btn=>btn.addEventListener("click",()=>{state.seriesTarget=parseInt(btn.dataset.srt);save();render();})); // 시리즈 형식: 1/2/3선승 토글
   on("#btn-start","click",startGame); // "▶ 경기 새로 시작" — 지금까지의 세팅으로 첫 세트를 시작
